@@ -1,0 +1,46 @@
+﻿Idea #1
+Philadelphia Crime Data
+
+
+Purpose:  Provide data related to crimes committed in the city of Philadelphia in a way that is easy to understand and obtain.
+
+
+API: 
+* https://www.opendataphilly.org/dataset/crime-incidents/resource/8beb3e4b-b62f-4237-840e-4276c7d7ae97
+* https://cityofphiladelphia.github.io/carto-api-explorer/#incidents_part1_part2
+* https://cityofphiladelphia.github.io/carto-api-explorer/#shootings (shootings specifically - has a lot more specific information to work with)
+
+
+Description:  My idea here is to create an app that allows users to input filter criteria (like a date range, incident type, etc.) and return a list of results.  From that list, users should be able to click on an incident and get more details (for example, a map of the location).  I would like to provide a way to display graphical representations based on the returned data as well (although I’m not sure about the specifics of this yet, I’m assuming the response will be turned into a local database and information will be processed locally).
+
+
+
+
+Idea #2
+Recreation App
+
+
+Purpose:  Provide data related to recreation activities and locations.
+
+
+API:
+* https://ridb.recreation.gov/docs#/
+
+
+Description:  Recreation.gov offers a robust dataset that would allow me to create an application to find recreation activities, find recreation areas, or recreation facilities.  A user would be able to search for any of the categories and return relevant results.  They’re all cross referenced, so I feel like it would allow for several different “click for more details” opportunities in the app.  I am thinking “nearby” options could be listed on several pages as a suggestion.  
+
+
+
+
+Idea #3
+NYC Safer-Sex Mapper
+
+
+Purpose:  Provide data related to the location and availability of free safer-sex products within the 5 boroughs of NYC.
+
+
+API
+* https://dev.socrata.com/foundry/data.cityofnewyork.us/4kpn-sezh
+
+
+Description:  This app would be very similar to the first idea here (Philadelphia Crime Data).  A user would be able to show locations based on input criteria, click into a location for more details (for example a map, open hours, available products, etc.).  This could also recommend other nearby locations based on some location criteria.
