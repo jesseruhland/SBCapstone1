@@ -16,7 +16,7 @@
 
 **4. In brief, outline your approach to creating your project (knowing that you may not know everything in advance and that these details might change later). Answer questions like the ones below, but feel free to add more information:**  
  **a. What does your database schema look like?**  
- ![database schema](<QuickDBD-export%20(5).png>)
+ ![database schema](</SchemaImages/QuickDBD-export%20(5).png>)
 
 > The schema will include several internal tables that connect user data with the data located at the external database.
 
