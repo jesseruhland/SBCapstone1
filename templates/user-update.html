@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+<!--  -->
+{% block title %}Update Your Profile{% endblock %}
+<!--  -->
+{% block main_content %}
+<div>
+  <form action="/users/{{user.username}}" method="PATCH">
+    {{form.hidden_tag()}}
+    <!--  -->
+    {% for field in form if field.widget.input_type !='hidden' %}
+    <div>
+      {{field.label}} {{field}}
+      <!--  -->
+      {% for error in field.errors %}
+      <div>{{error}}</div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    <!--  -->
+    <small>In order to save your changes, please confirm your password.</small>
+    <label for="update-password-input">Password:</label>
+    <input id="update-password-input" name="password" type="password" />
+    <button>Submit</button>
+  </form>
+  <a href="/users/{{user.username}}"><button>Cancel</button></a>
+  <hr />
+  <form action="/users/{{username}}" method="DELETE">
+    <small
+      >In order to delete your account, please confirm your password.</small
+    >
+    <label for="delete-password-input">Password:</label>
+    <input id="delete-password-input" name="password" type="password" />
+    <button>Delete Your Account</button>
+  </form>
+</div>
+{% endblock %}
