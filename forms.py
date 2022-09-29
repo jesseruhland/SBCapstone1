@@ -10,7 +10,7 @@ class RegisterForm(FlaskForm):
     first_name = StringField("First Name", validators=[InputRequired(), Length(max=40, message="First Name cannot exceed 40 characters.")])
     last_name = StringField("Last Name", validators=[InputRequired(), Length(max=40, message="Last Name cannot exceed 40 characters.")])
     email = StringField("Email Address", validators=[InputRequired(), Email()])
-    zip_code = StringField("Zip Code (optional)", validators=[Length(min=5, max=5)], description="optional")
+    zip_code = StringField("Zip Code", validators=[InputRequired(), Length(min=5, max=5)])
     username = StringField("Username", validators=[InputRequired(), Length(max=30, message="Username cannot exceed 30 characters.")])
     password = PasswordField("Password", validators=[InputRequired(), Length(min=8, message="Password must be at least 8 characters.")])
 
@@ -26,7 +26,7 @@ class UpdateUserForm(FlaskForm):
     first_name = StringField("First Name", validators=[InputRequired(), Length(max=40, message="First Name cannot exceed 40 characters.")])
     last_name = StringField("Last Name", validators=[InputRequired(), Length(max=40, message="Last Name cannot exceed 40 characters.")])
     email = StringField("Email Address", validators=[InputRequired(), Email()])
-    zip_code = StringField("Zip Code", validators=[Length(min=5, max=5)])
+    zip_code = StringField("Zip Code", validators=[InputRequired(), Length(min=5, max=5)])
     username = StringField("Username", validators=[InputRequired(), Length(max=30, message="Username cannot exceed 30 characters.")])
 
 class CommentForm(FlaskForm):

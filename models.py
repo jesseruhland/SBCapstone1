@@ -28,7 +28,7 @@ class User(db.Model):
     first_name = db.Column(db.String(40), nullable=False)
     last_name = db.Column(db.String(40), nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    zip_code = db.Column(db.Integer, nullable=True, default=99999)
+    zip_code = db.Column(db.Integer, nullable=False)
     password = db.Column(db.String, nullable=False)
 
     comments = db.relationship("Comment", backref="users")

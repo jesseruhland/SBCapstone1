@@ -43,25 +43,17 @@ def check_login():
 
 @app.route("/")
 def display_homepage():
-    """Display the homepage of the application"""
+    """Display the homepage of the application."""
 
     if check_login():
         return redirect("/facilities")
     return render_template("homepage.html")
 
 
-@app.route("/register")
-def display_user_form():
-    """Display form for new user registration"""
-
-    form = RegisterForm()
-    return render_template("register.html", form=form)
-
-
 @app.route("/login", methods=["GET", "POST"])
 def log_in_user():
     """On GET -> Display login form
-    On POST -> Validate user login credentials, if valid save user to session"""
+    On POST -> Validate user login credentials, if valid save user to session."""
 
     if check_login():
         return redirect("/facilities")
@@ -87,7 +79,7 @@ def log_in_user():
 
 @app.route("/logout", methods=["POST"])
 def log_out_user():
-    """Logout current user"""
+    """Logout current user."""
 
     session.pop("username")
     return redirect("/")
@@ -95,10 +87,10 @@ def log_out_user():
 
 ################## User Routes ##################
 
-
-@app.route("/users", methods=["POST"])
-def create_user():
-    """Create a new user from entered form data"""
+@app.route("/users/register", methods=["GET", "POST"])
+def create_new_user():
+    """On GET -> Display form for new user registration.
+    On POST -> Process new user registration, login new user."""
 
     form = RegisterForm()
 
@@ -117,70 +109,98 @@ def create_user():
             db.session.commit()
         except IntegrityError:
             form.username.errors.append('That username is already in use. Please choose another.')
-            return redirect("/register")
+            return redirect("/users/register")
         
         session["username"] = new_user.username
 
-        return redirect(f"/users/{new_user.username}")
+        return redirect("/")
+    
+    return render_template("register.html", form=form)
 
 
-@app.route("/users/<username>", methods=["GET", "PATCH", "DELETE"])
+@app.route("/users/<username>")
 def display_user_detail(username):
-    """On GET -> display user profile page
-    on PATCH -> update user details
-    on DELETE -> delete user"""
+    """Display user details if a current user is logged in."""
 
     if check_login():
         user = User.query.get_or_404(username)
-
-        method = request.method
-
-        if method == "GET":
-            return render_template("user-detail.html", user=user)
-        
-        if method == "PATCH":
-            if username == session.get("username"):
-                password = form.password.data
-                username = session.get("username")
-
-                this_user = User.authenticate(username=username, password=password)
-
-                if this_user:
-                    this_user.username = form.username.data
-                    this_user.first_name = form.first_name.data
-                    this_user.last_name = form.last_name.data
-                    this_user.email = form.email.data
-                    this_user.zip_code = form.zip_code.data
-
-                    db.session.commit()
-
-                    session["username"] = this_user.username
-
-                    flash("Your profile has been successfully updated!", "success")
-                    return redirect(f"/users/{this_user.username}")
-                
-                else:
-                    flash(f"Incorrect password entered for {username}, please try again.", "warning")
-                    return redirect(f"users/{username}/update")
-
-
-        # if method == "DELETE":
-    
+        return render_template("user-detail.html", user=user)
     else:
-        flash("You must login to view that page.", "warning")
+        flash(f"Please login to view that page.", "warning")
         return redirect("/login")
 
+    
 
-@app.route("/users/<username>/update", methods=["GET"])
+@app.route("/users/<username>/update", methods=["GET", "POST"])
 def display_user_edit_form(username):
-    """Display the user edit form for the specified user if that user is logged in."""
+    """On GET -> Display the user edit form for the specified user if that user is logged in.
+    On POST -> Process changes to user profile."""
 
-    if username == session.get("username"):
-        user = User.query.get_or_404(username)
-        form = UpdateUserForm(obj=user)
+    user = User.query.get_or_404(username)
+    form = UpdateUserForm(obj=user)
+
+    if form.validate_on_submit():
+        username = session.get("username")
+        password = request.form["password"]
+
+        this_user = User.authenticate(username, password)
+        
+        if this_user:
+            this_user.username = form.username.data
+            this_user.first_name = form.first_name.data
+            this_user.last_name = form.last_name.data
+            this_user.email = form.email.data
+            this_user.zip_code = form.zip_code.data
+
+            db.session.commit()
+
+            session["username"] = this_user.username
+
+            return redirect(f"/users/{this_user.username}")
+
+        else:
+            form.username.errors=["Invalid password. Please try again"]
+
+    if check_login() == user:
         return render_template("user-update.html", form=form, user=user)
+
+    else:
+        flash("You are not authorized to access that page.", "danger")
+        return redirect(f"/users/{session.get('username')}")
+
+@app.route("/users/<username>/delete", methods=["GET", "POST"])
+def delete_user(username):
+
+    user = User.query.get_or_404(username)
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        this_user = User.authenticate(username, password)
+
+        if this_user:
+            db.session.delete(this_user)
+            db.session.commit()
+
+            session.pop("username")
+
+            flash(f"Your account has been deleted.", "success")
+            return redirect("/")
+        
+        else:
+            form.password.errors=["Invalid username/password combination. Please try again"]
+    
+    if check_login() == user:
+        return render_template("user-delete.html", form=form, user=user)
+
     else:
         flash("You are not authorized to access that page.", "danger")
         return redirect(f"/users/{session.get('username')}")
 
 
+
+################## Facility Routes ##################
+
+@app.route("/facilities")

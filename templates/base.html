@@ -12,7 +12,7 @@
       <a href="/">Home</a>
       {% if not session["username"] %}
       <a href="/login">Login</a>
-      <a href="/register">Register</a>
+      <a href="/users/register">Register</a>
       {% endif %} {% if session["username"] %}
       <form action="/logout" method="POST">
         <button>Logout</button>

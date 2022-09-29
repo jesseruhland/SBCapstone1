@@ -4,7 +4,7 @@
 <!--  -->
 {% block main_content %}
 <div>
-  <form action="/users" method="POST">
+  <form method="POST">
     {{form.hidden_tag()}}
     <!--  -->
     {% for field in form if field.widget.input_type !='hidden' %}
