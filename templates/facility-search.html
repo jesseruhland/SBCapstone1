@@ -1,5 +1,52 @@
 {% extends "base.html" %}
 <!--  -->
-{% block title %}{% endblock %}
+{% block title %}Facility Search{% endblock %}
 <!--  -->
-{% block main_content %}{% endblock %}
+{% block main_content %}
+<div id="search-by-borough-form">
+  <form>
+    <p>Search by borough:</p>
+    <label for="borough-input">Borough</label>
+    <select name="borough-input" id="borough-input">
+      <option value=""></option>
+      <option value="Bronx">The Bronx</option>
+      <option value="Brooklyn">Brooklyn</option>
+      <option value="Manhattan">Manhattan</option>
+      <option value="Queens">Queens</option>
+      <option value="Staten Island">Staten Island</option>
+    </select>
+    <button id="borough-search-button">Submit</button>
+  </form>
+  <button id="advance-search-button">Advanced Search</button>
+</div>
+<div id="advanced-search-form" hidden>
+  <button id="basic-search-button">Back To Basic Search</button>
+  <p></p>
+  <form>
+    <label for="zip-code-input">Zip Code</label>
+    <input type="text" name="zip-code-input" id="zip-code-input" />
+    <p>Available Products</p>
+    <input type="checkbox" name="male-condoms-input" id="male-condoms-input" />
+    <label for="male-condoms-input">Male Condoms</label>
+    <br />
+    <input
+      type="checkbox"
+      name="female-condoms-input"
+      id="female-condoms-input"
+    />
+    <label for="female-condoms-input">Female Condoms</label>
+
+    <br />
+    <input type="checkbox" name="lubricant-input" id="lubricant-input" />
+    <label for="lubricant-input">Lubricant</label>
+    <p></p>
+    <input type="checkbox" name="open-now-input" id="open-now-input" />
+    <label for="open-now-input">Open Now</label>
+    <br />
+    <button id="advanced-submit-button">Submit</button>
+  </form>
+</div>
+<div id="search-results-div">
+  <ul id="search-results-list"></ul>
+</div>
+{% endblock %}

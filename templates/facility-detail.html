@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 <!--  -->
-{% block title %}{% endblock %}
+{% block title %}{{facility["facilityname"]}} Details{% endblock %}
 <!--  -->
-{% block main_content %}{% endblock %}
+{% block main_content %} {{facility["facilityname"]}} {{facility["address"]}} {%
+endblock %}

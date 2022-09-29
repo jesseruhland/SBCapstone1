@@ -13,11 +13,9 @@
 
 
 
-################## Facility Routes ##################
 
-@app.route("/facilities")
 
-@app.route("/facilities/<int:facility_pk>")
+
 
 @app.route("/facilities/<int:facility_pk>/comments", methods=["GET", "POST"])
 

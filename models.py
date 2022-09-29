@@ -69,7 +69,7 @@ class Comment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"))
-    facility_pk = db.Column(db.Integer, nullable=False)
+    facility_pk = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
     private = db.Column(db.Boolean, nullable=False)
 
@@ -85,4 +85,4 @@ class Favorite(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"))
-    facility_pk = facility_pk = db.Column(db.Integer, nullable=False)
+    facility_pk = db.Column(db.String, nullable=False)

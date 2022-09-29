@@ -6,14 +6,14 @@ from models import db, connect_db, User, Comment, Favorite
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
 from secret import api_app_token
 from sqlalchemy.exc import IntegrityError
+import pandas as pd
+from sodapy import Socrata
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///safer_sex_nyc'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = 'secretkey'
-
-api_base_url = "https://data.cityofnewyork.us/resource/4kpn-sezh.json"
 
 # debug = DebugToolbarExtension(app)
 
@@ -203,4 +203,23 @@ def delete_user(username):
 
 ################## Facility Routes ##################
 
+client = Socrata("data.cityofnewyork.us", api_app_token)
+api_ext = "4kpn-sezh"
+
 @app.route("/facilities")
+def display_facility_search():
+    """Display facility search page."""
+
+    return render_template("facility-search.html")
+
+@app.route("/facilities/<facility_pk>")
+def display_facility_details(facility_pk):
+    """Obtain facility information from the API and display for user interaction."""
+
+    result = client.get(api_ext, limit=1, facility_pk=facility_pk)
+    facility = result[0]
+
+    comments = Comment.query.filter_by(facility_pk=facility_pk)
+
+    return render_template("facility-detail.html", facility=facility, comments=comments)
+
