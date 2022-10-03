@@ -10,4 +10,34 @@
   <p>{{user.zip_code}}</p>
   <a href="/users/{{user.username}}/update">Update/Delete Your Profile</a>
 </div>
-{% endblock %}
+
+<h1>My Favorite Facilities</h1>
+{% for favorite in user.favorites %}
+<p>
+  <a href="/facilities/{{favorite.facility_pk}}">{{favorite.facility_name}}</a>
+  {{favorite.facility_address}}
+  <form action="/facilities/{{favorite.facility_pk}}/favorite/delete" method="POST">
+    <button>Un-Favorite</button>
+  </form>
+</p>
+{% endfor %}
+
+<h1>My Private Comments</h1>
+{% for comment in user.comments %} {% if comment.private == True %}
+<p>
+  <a href="/facilities/{{comment.facility_pk}}">{{comment.facility_name}}</a>
+  <br />
+  {{comment.content}}
+  <br />
+  <small>Note: This comment is private.</small>
+</p>
+{% endif %} {% endfor %}
+
+<h1>My Public Comments</h1>
+{% for comment in user.comments %} {% if comment.private == False %}
+<p>
+  <a href="/facilities/{{comment.facility_pk}}">{{comment.facility_name}}</a>
+  <br />
+  {{comment.content}}
+</p>
+{% endif %} {% endfor %} {% endblock %}

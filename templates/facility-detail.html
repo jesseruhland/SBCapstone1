@@ -3,4 +3,69 @@
 {% block title %}{{facility["facilityname"]}} Details{% endblock %}
 <!--  -->
 {% block main_content %} {{facility["facilityname"]}} {{facility["address"]}} {%
-endblock %}
+if g.user %}
+<a href="/facilities/{{facility['facility_pk']}}/comments"
+  ><button id="add-commment-button">Add Comment</button></a
+>
+
+<!-- This div handles favorites(creation/deletion) for logged-in users -->
+
+<div id="favorite-form-div">
+  {% if favorite %}
+  <form
+    action="/facilities/{{facility['facility_pk']}}/favorite/delete"
+    method="POST"
+  >
+    <button>Un-Favorite</button>
+  </form>
+  {% else %}
+  <form
+    action="/facilities/{{facility['facility_pk']}}/favorite"
+    id="favorite-form"
+    method="POST"
+  >
+    <input
+      id="facility_name"
+      name="facility_name"
+      type="text"
+      value="{{facility['facilityname']}}"
+      hidden
+    />
+    <input
+      id="facility_address"
+      name="facility_address"
+      type="text"
+      value="{{facility['address']}}"
+      hidden
+    />
+    <button id="favorite-button">Favorite</button>
+  </form>
+  {% endif %}
+</div>
+{% endif %}
+
+<!--  -->
+
+<h1>Public Comments</h1>
+{% for comment in comments %} {% if comment.private == False %}
+<div>
+  <h4>{{comment.username}}</h4>
+  <p>{{comment.content}}</p>
+</div>
+{% endif %} {% endfor %} {% if g.user %}
+<h1>My Private Comments</h1>
+{% for comment in comments %} {% if comment.private == True and comment.username
+== g.user.username%}
+<div>
+  <h4>{{comment.username}}</h4>
+  <p>{{comment.content}}</p>
+</div>
+{% endif %} {% endfor %} {% endif %}
+<!--  -->
+
+<button id="similar-locations-button">See Similar Locations</button>
+<div id="similar-locations-div" hidden>
+  <h1>Similar Locations</h1>
+  <ul id="similar-locations-list"></ul>
+</div>
+{%endblock %}

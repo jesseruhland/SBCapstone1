@@ -70,6 +70,8 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"))
     facility_pk = db.Column(db.String, nullable=False)
+    facility_name = db.Column(db.String, nullable=False)
+    facility_address = db.Column(db.String, nullable=False)
     content = db.Column(db.Text, nullable=False)
     private = db.Column(db.Boolean, nullable=False)
 
@@ -83,6 +85,7 @@ class Favorite(db.Model):
         f = self
         return f"<Favorite Relationship username:{f.username}, facility:{f.facility_pk}>"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"))
-    facility_pk = db.Column(db.String, nullable=False)
+    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"), primary_key=True)
+    facility_pk = db.Column(db.String, nullable=False, primary_key=True)
+    facility_name = db.Column(db.String, nullable=False)
+    facility_address = db.Column(db.String, nullable=False)

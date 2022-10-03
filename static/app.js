@@ -9,6 +9,7 @@ const $advancedSearchBtn = $("#advance-search-button");
 const $advancedSearchForm = $("#advanced-search-form");
 const $basicSearchBtn = $("#basic-search-button");
 const $advancedSubmitBtn = $("#advanced-submit-button");
+const $similarLocationsBtn = $("#similar-locations-button");
 
 // Add the visual elements to the page
 const addToPage = (facilityObj) => {
@@ -32,7 +33,7 @@ $basicSearchBtn.on("click", function () {
   $boroughSearchForm.show();
 });
 
-//  Simple search (by borough) handler
+//  Basic search (by borough) handler
 $boroughSearchBtn.on("click", async function (event) {
   event.preventDefault();
   $searchResultsList.html("");

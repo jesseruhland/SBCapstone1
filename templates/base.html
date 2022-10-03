@@ -10,10 +10,11 @@
   <body>
     <nav>
       <a href="/">Home</a>
-      {% if not session["username"] %}
+      {% if not g.user %}
       <a href="/login">Login</a>
       <a href="/users/register">Register</a>
-      {% endif %} {% if session["username"] %}
+      {% endif %} {% if g.user %}
+      <a href="/users/{{g.user.username}}">My Profile</a>
       <form action="/logout" method="POST">
         <button>Logout</button>
       </form>

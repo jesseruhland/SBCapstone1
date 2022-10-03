@@ -1,6 +1,6 @@
 """SaferSexNYC application."""
 
-from flask import Flask, request, redirect, render_template, flash, session
+from flask import Flask, request, redirect, render_template, flash, session, g
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Comment, Favorite
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
@@ -19,6 +19,15 @@ app.config['SECRET_KEY'] = 'secretkey'
 
 connect_db(app)
 db.create_all()
+
+@app.before_request
+def add_user_to_global():
+
+    if session.get("username"):
+        g.user = User.query.get(session["username"])
+    
+    else:
+        g.user = None
 
 def check_login():
     """Determine if a user is currently logged-in. If so, return that user object.  If not, return False."""
@@ -212,14 +221,101 @@ def display_facility_search():
 
     return render_template("facility-search.html")
 
+
 @app.route("/facilities/<facility_pk>")
 def display_facility_details(facility_pk):
     """Obtain facility information from the API and display for user interaction."""
+
+    form = CommentForm()
+
+    if g.user:
+        favorite = Favorite.query.filter(Favorite.facility_pk==facility_pk, Favorite.username==g.user.username).one_or_none()
+    
+    else:
+        favorite = None
 
     result = client.get(api_ext, limit=1, facility_pk=facility_pk)
     facility = result[0]
 
     comments = Comment.query.filter_by(facility_pk=facility_pk)
 
-    return render_template("facility-detail.html", facility=facility, comments=comments)
+    return render_template("facility-detail.html", facility=facility, comments=comments, form=form, favorite=favorite)
 
+
+@app.route("/facilities/<facility_pk>/comments", methods=["GET", "POST"])
+def create_comment(facility_pk):
+    """On GET -> Display new comment form.
+    On POST -> Save new comment to database."""
+
+    user = check_login()
+
+    if user:
+
+        form = CommentForm()
+
+        if form.validate_on_submit():
+            content = form.content.data
+            private = form.private.data
+
+            result = client.get(api_ext, limit=1, facility_pk=facility_pk)
+            facility = result[0]
+
+            facility_name = facility['facilityname']
+            facility_address = facility['address']
+
+            new_comment = Comment(username=user.username, facility_pk=facility_pk, content=content, private=private, facility_name=facility_name, facility_address=facility_address)
+
+            db.session.add(new_comment)
+            db.session.commit()
+
+
+
+            return redirect(f"/facilities/{facility_pk}")
+        
+        else:
+            return render_template("comment-form.html", form=form)
+
+    else:
+        flash(f"Please login to view that page.", "warning")
+        return redirect("/login")
+
+
+@app.route("/facilities/<facility_pk>/favorite", methods=["POST"])
+def create_favorite(facility_pk):
+    """Create a new favorite association between a user and a facility"""
+
+    user = check_login()
+
+    if user:
+        facility_name = request.form['facility_name']
+        facility_address = request.form['facility_address']
+
+        new_favorite = Favorite(username=user.username, facility_pk=facility_pk, facility_name=facility_name, facility_address=facility_address)
+
+        db.session.add(new_favorite)
+        db.session.commit()
+
+        return redirect(f"/facilities/{facility_pk}")
+
+    else:
+        flash(f"Please login to view that page.", "warning")
+        return redirect("/login")    
+
+
+@app.route("/facilities/<facility_pk>/favorite/delete", methods=["POST"])
+def delete_favorite(facility_pk):
+    """Delete a favorite association between a user and a facility"""
+
+    user = check_login()
+
+    if user:
+
+        Favorite.query.filter(Favorite.facility_pk==facility_pk, Favorite.username==user.username).delete()
+
+        db.session.commit()
+
+        return redirect(f"/facilities/{facility_pk}")
+
+    else:
+        flash(f"Please login to view that page.", "warning")
+        return redirect("/login")

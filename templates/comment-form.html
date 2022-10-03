@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 <!--  -->
-{% block title %}{% endblock %}
+{% block title %}Add A Comment{% endblock %}
 <!--  -->
-{% block main_content %}{% endblock %}
+{% block main_content %}
+<div>
+  <form method="POST">
+    {{form.hidden_tag()}}
+    <!--  -->
+    {% for field in form if field.widget.input_type !='hidden' %}
+    <div>
+      {{field.label}} {{field}}
+      <!--  -->
+      {% for error in field.errors %}
+      <div>{{error}}</div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    <!--  -->
+    <button>Submit</button>
+  </form>
+  <a href="/"><button>Cancel</button></a>
+</div>
+{% endblock %}

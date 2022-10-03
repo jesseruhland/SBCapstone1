@@ -1,7 +1,7 @@
 """Forms for SaferSexNYC app"""
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, BooleanField, IntegerField
+from wtforms import StringField, PasswordField, TextAreaField, BooleanField, IntegerField, HiddenField
 from wtforms.validators import InputRequired, Length, Email
 
 class RegisterForm(FlaskForm):
@@ -34,4 +34,3 @@ class CommentForm(FlaskForm):
 
     content = TextAreaField("Comment", validators=[InputRequired()])
     private = BooleanField("Private Comment")
-
