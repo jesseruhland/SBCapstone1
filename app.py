@@ -2,7 +2,7 @@
 
 from flask import Flask, request, redirect, render_template, flash, session, g
 # from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Comment, Favorite
+from models import db, connect_db, User, Comment, Favorite, Site
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
 from secret import api_app_token
 from sqlalchemy.exc import IntegrityError
@@ -18,7 +18,6 @@ app.config['SECRET_KEY'] = 'secretkey'
 # debug = DebugToolbarExtension(app)
 
 connect_db(app)
-db.create_all()
 
 @app.before_request
 def add_user_to_global():
@@ -55,7 +54,7 @@ def display_homepage():
     """Display the homepage of the application."""
 
     if check_login():
-        return redirect("/facilities")
+        return redirect("/sites")
     return render_template("homepage.html")
 
 
@@ -65,7 +64,7 @@ def log_in_user():
     On POST -> Validate user login credentials, if valid save user to session."""
 
     if check_login():
-        return redirect("/facilities")
+        return redirect("/sites")
     
     form = LoginForm()
 
@@ -210,73 +209,75 @@ def delete_user(username):
 
 
 
-################## Facility Routes ##################
+################## Site Routes ##################
 
 client = Socrata("data.cityofnewyork.us", api_app_token)
 api_ext = "4kpn-sezh"
 
-@app.route("/facilities")
-def display_facility_search():
-    """Display facility search page."""
+@app.route("/sites")
 
-    return render_template("facility-search.html")
+@app.route("/sites/search")
+def display_site_search():
+    """Display site search page."""
+
+    return render_template("site-search.html")
 
 
-@app.route("/facilities/<facility_pk>")
-def display_facility_details(facility_pk):
-    """Obtain facility information from the API and display for user interaction."""
+@app.route("/sites/<int:site_id>")
+def display_site_details(site_id):
+    """Obtain site information from the API and display for user interaction."""
 
     form = CommentForm()
 
     if g.user:
-        favorite = Favorite.query.filter(Favorite.facility_pk==facility_pk, Favorite.username==g.user.username).one_or_none()
+        favorite = Favorite.query.filter(Favorite.site_id==site_id, Favorite.username==g.user.username).one_or_none()
     
     else:
         favorite = None
 
-    result = client.get(api_ext, limit=1, facility_pk=facility_pk)
-    facility = result[0]
+    result = client.get(api_ext, limit=1, site_id=site_id)
+    site = result[0]
 
-    comments = Comment.query.filter_by(facility_pk=facility_pk)
+    comments = Comment.query.filter_by(site_id=site_id)
 
-    return render_template("facility-detail.html", facility=facility, comments=comments, form=form, favorite=favorite)
+    return render_template("site-detail.html", site=site, comments=comments, form=form, favorite=favorite)
 
 
-@app.route("/facilities/<facility_pk>/favorite", methods=["POST"])
-def create_favorite(facility_pk):
-    """Create a new favorite association between a user and a facility"""
+@app.route("/sites/<int:site_id>/favorite", methods=["POST"])
+def create_favorite(site_id):
+    """Create a new favorite association between a user and a site."""
 
     user = check_login()
 
     if user:
-        facility_name = request.form['facility_name']
-        facility_address = request.form['facility_address']
+        site_name = request.form['site_name']
+        site_address = request.form['site_address']
 
-        new_favorite = Favorite(username=user.username, facility_pk=facility_pk, facility_name=facility_name, facility_address=facility_address)
+        new_favorite = Favorite(username=user.username, site_id=site_id, site_name=site_name, site_address=site_address)
 
         db.session.add(new_favorite)
         db.session.commit()
 
-        return redirect(f"/facilities/{facility_pk}")
+        return redirect(f"/sites/{site_id}")
 
     else:
         flash(f"Please login to view that page.", "warning")
         return redirect("/login")    
 
 
-@app.route("/facilities/<facility_pk>/favorite/delete", methods=["POST"])
-def delete_favorite(facility_pk):
-    """Delete a favorite association between a user and a facility."""
+@app.route("/sites/<int:site_id>/favorite/delete", methods=["POST"])
+def delete_favorite(site_id):
+    """Delete a favorite association between a user and a site."""
 
     user = check_login()
 
     if user:
 
-        Favorite.query.filter(Favorite.facility_pk==facility_pk, Favorite.username==user.username).delete()
+        Favorite.query.filter(Favorite.site_id==site_id, Favorite.username==user.username).delete()
 
         db.session.commit()
 
-        return redirect(f"/facilities/{facility_pk}")
+        return redirect(f"/sites/{site_id}")
 
     else:
         flash(f"Please login to view that page.", "warning")
@@ -285,8 +286,8 @@ def delete_favorite(facility_pk):
 
 ################## Comment Routes ##################
 
-@app.route("/facilities/<facility_pk>/comments", methods=["GET", "POST"])
-def create_comment(facility_pk):
+@app.route("/sites/<int:site_id>/comments", methods=["GET", "POST"])
+def create_comment(site_id):
     """On GET -> Display new comment form.
     On POST -> Save new comment to database."""
 
@@ -300,20 +301,20 @@ def create_comment(facility_pk):
             content = form.content.data
             private = form.private.data
 
-            result = client.get(api_ext, limit=1, facility_pk=facility_pk)
-            facility = result[0]
+            result = client.get(api_ext, limit=1, site_id=site_id)
+            site = result[0]
 
-            facility_name = facility['facilityname']
-            facility_address = facility['address']
+            site_name = site['sitename']
+            site_address = site['address']
 
-            new_comment = Comment(username=user.username, facility_pk=facility_pk, content=content, private=private, facility_name=facility_name, facility_address=facility_address)
+            new_comment = Comment(username=user.username, site_id=site_id, content=content, private=private, site_name=site_name, site_address=site_address)
 
             db.session.add(new_comment)
             db.session.commit()
 
 
 
-            return redirect(f"/facilities/{facility_pk}")
+            return redirect(f"/sites/{site_id}")
         
         else:
             return render_template("comment-form.html", form=form)
@@ -349,7 +350,7 @@ def update_comment(comment_id):
                 db.session.commit()
 
                 flash("Your comment has been updated successfully.", "success")
-                return redirect(f"/facilities/{comment.facility_pk}")
+                return redirect(f"/sites/{comment.site_id}")
 
             else:
                 return render_template("comment-form.html", form=form)
@@ -375,12 +376,12 @@ def delete_comment(comment_id):
 
         if comment.username == user.username:
 
-            facility_pk = comment.facility_pk
+            site_id = comment.site_id
             db.session.delete(comment)
             db.session.commit()
 
             flash("Your comment has been deleted successfully.", "success")
-            return redirect(f"/facilities/{facility_pk}")
+            return redirect(f"/sites/{site_id}")
 
         else:
             flash("You must be the owner of that comment to delete it.", "warning")

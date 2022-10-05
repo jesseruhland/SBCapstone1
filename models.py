@@ -68,10 +68,8 @@ class Comment(db.Model):
         return f"<Comment id:{c.id}, username:{c.username}, private?:{c.private}>"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"))
-    facility_pk = db.Column(db.String, nullable=False)
-    facility_name = db.Column(db.String, nullable=False)
-    facility_address = db.Column(db.String, nullable=False)
+    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"), nullable=False)
+    site_id = db.Column(db.Integer, db.ForeignKey("sites.id", ondelete="CASCADE"), nullable=False)
     content = db.Column(db.Text, nullable=False)
     private = db.Column(db.Boolean, nullable=False)
 
@@ -86,6 +84,44 @@ class Favorite(db.Model):
         return f"<Favorite Relationship username:{f.username}, facility:{f.facility_pk}>"
 
     username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"), primary_key=True)
-    facility_pk = db.Column(db.String, nullable=False, primary_key=True)
-    facility_name = db.Column(db.String, nullable=False)
-    facility_address = db.Column(db.String, nullable=False)
+    site_id = db.Column(db.Integer, db.ForeignKey("sites.id", ondelete="CASCADE"), primary_key=True)
+
+class Site(db.Model):
+    """Site"""
+
+    __tablename__ = "sites"
+
+    def __repr__(self):
+        """Display site information"""
+        s = self
+        return f"<Site id:{s.id}, name:{s.name}>"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    service_category = db.Column(db.String)
+    service_type = db.Column(db.String)
+    building_number = db.Column(db.String)
+    partner_type = db.Column(db.String)
+    partner_type_detailed = db.Column(db.String)
+    address = db.Column(db.String)
+    address_2 = db.Column(db.String)
+    borough = db.Column(db.String)
+    zip_code = db.Column(db.String)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    phone = db.Column(db.String)
+    additional_info = db.Column(db.String)
+    start_date = db.Column(db.String)
+    end_date = db.Column(db.String)
+    monday = db.Column(db.String)
+    tuesday = db.Column(db.String)
+    wednesday = db.Column(db.String)
+    thursday = db.Column(db.String)
+    friday = db.Column(db.String)
+    saturday = db.Column(db.String)
+    sunday = db.Column(db.String)
+    condoms_male = db.Column(db.Boolean)
+    fc2_female_insertive_condoms = db.Column(db.Boolean)
+    lubricant = db.Column(db.Boolean)
+    facility_type = db.Column(db.String)
+    website = db.Column(db.String)

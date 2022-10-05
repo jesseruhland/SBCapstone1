@@ -1,7 +1,4 @@
-import { apiAppToken } from "./secret.js";
-
 //  Variables
-const apiBaseUrl = "https://data.cityofnewyork.us/resource/4kpn-sezh.json";
 const $searchResultsList = $("#search-results-list");
 const $boroughSearchForm = $("#search-by-borough-form");
 const $boroughSearchBtn = $("#borough-search-button");
@@ -12,9 +9,9 @@ const $advancedSubmitBtn = $("#advanced-submit-button");
 const $similarLocationsBtn = $("#similar-locations-button");
 
 // Add the visual elements to the page
-const addToPage = (facilityObj) => {
+const addToPage = (siteObj) => {
   const newLi = document.createElement("li");
-  newLi.innerHTML = `<a href="/facilities/${facilityObj.facility_pk}">${facilityObj.facilityname}</a> ${facilityObj.address}`;
+  newLi.innerHTML = `<a href="/sites/${siteObj.site_pk}">${siteObj.sitename}</a> ${siteObj.address}`;
 
   $searchResultsList.append(newLi);
 };
@@ -106,9 +103,9 @@ $advancedSubmitBtn.on("click", async function (event) {
 });
 
 //  Helper function that compares each location to the current day and time, if currently open, add site to page
-const checkDayAndTime = (facilityObj, day, hour, minutes) => {
+const checkDayAndTime = (siteObj, day, hour, minutes) => {
   const dayToCheck = weekday[day];
-  const timeStr = facilityObj[dayToCheck];
+  const timeStr = siteObj[dayToCheck];
 
   //  Immediately filter out locations that are not open on the current day
   if (timeStr != undefined) {
@@ -128,12 +125,12 @@ const checkDayAndTime = (facilityObj, day, hour, minutes) => {
 
     //  Handle locations that are open now
     if (open[0] <= hour && hour < close[0]) {
-      addToPage(facilityObj);
+      addToPage(siteObj);
     }
 
     //  Handle locations closing within the hour
     else if (hour == close[0] && minutes < close[1]) {
-      addToPage(facilityObj);
+      addToPage(siteObj);
     }
   }
 };
