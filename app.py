@@ -242,6 +242,49 @@ def display_facility_details(facility_pk):
     return render_template("facility-detail.html", facility=facility, comments=comments, form=form, favorite=favorite)
 
 
+@app.route("/facilities/<facility_pk>/favorite", methods=["POST"])
+def create_favorite(facility_pk):
+    """Create a new favorite association between a user and a facility"""
+
+    user = check_login()
+
+    if user:
+        facility_name = request.form['facility_name']
+        facility_address = request.form['facility_address']
+
+        new_favorite = Favorite(username=user.username, facility_pk=facility_pk, facility_name=facility_name, facility_address=facility_address)
+
+        db.session.add(new_favorite)
+        db.session.commit()
+
+        return redirect(f"/facilities/{facility_pk}")
+
+    else:
+        flash(f"Please login to view that page.", "warning")
+        return redirect("/login")    
+
+
+@app.route("/facilities/<facility_pk>/favorite/delete", methods=["POST"])
+def delete_favorite(facility_pk):
+    """Delete a favorite association between a user and a facility."""
+
+    user = check_login()
+
+    if user:
+
+        Favorite.query.filter(Favorite.facility_pk==facility_pk, Favorite.username==user.username).delete()
+
+        db.session.commit()
+
+        return redirect(f"/facilities/{facility_pk}")
+
+    else:
+        flash(f"Please login to view that page.", "warning")
+        return redirect("/login")
+
+
+################## Comment Routes ##################
+
 @app.route("/facilities/<facility_pk>/comments", methods=["GET", "POST"])
 def create_comment(facility_pk):
     """On GET -> Display new comment form.
@@ -280,42 +323,69 @@ def create_comment(facility_pk):
         return redirect("/login")
 
 
-@app.route("/facilities/<facility_pk>/favorite", methods=["POST"])
-def create_favorite(facility_pk):
-    """Create a new favorite association between a user and a facility"""
-
-    user = check_login()
-
-    if user:
-        facility_name = request.form['facility_name']
-        facility_address = request.form['facility_address']
-
-        new_favorite = Favorite(username=user.username, facility_pk=facility_pk, facility_name=facility_name, facility_address=facility_address)
-
-        db.session.add(new_favorite)
-        db.session.commit()
-
-        return redirect(f"/facilities/{facility_pk}")
-
-    else:
-        flash(f"Please login to view that page.", "warning")
-        return redirect("/login")    
-
-
-@app.route("/facilities/<facility_pk>/favorite/delete", methods=["POST"])
-def delete_favorite(facility_pk):
-    """Delete a favorite association between a user and a facility"""
+@app.route("/comments/<int:comment_id>/update", methods=["GET", "POST"])
+def update_comment(comment_id):
+    """On GET -> Display comment update form.
+    On POST -> Save updates to comment.
+    """
 
     user = check_login()
 
     if user:
 
-        Favorite.query.filter(Favorite.facility_pk==facility_pk, Favorite.username==user.username).delete()
+        comment = Comment.query.get_or_404(comment_id)
+        form = CommentForm(obj=comment)
 
-        db.session.commit()
+        if comment.username == user.username:
 
-        return redirect(f"/facilities/{facility_pk}")
+            if form.validate_on_submit():
 
+                content = form.content.data
+                private = form.private.data
+
+                comment.content = content
+                comment.private = private
+
+                db.session.commit()
+
+                flash("Your comment has been updated successfully.", "success")
+                return redirect(f"/facilities/{comment.facility_pk}")
+
+            else:
+                return render_template("comment-form.html", form=form)
+
+        else:
+            flash(f"You must be the owner of that comment to edit it.", "warning")
+            return redirect("/login")
+    
     else:
         flash(f"Please login to view that page.", "warning")
+        return redirect("/login")
+
+
+@app.route("/comments/<int:comment_id>/delete", methods=["POST"])
+def delete_comment(comment_id):
+    """Delete a comment from the database"""
+
+    user = check_login()
+
+    if user:
+
+        comment = Comment.query.get_or_404(comment_id)
+
+        if comment.username == user.username:
+
+            facility_pk = comment.facility_pk
+            db.session.delete(comment)
+            db.session.commit()
+
+            flash("Your comment has been deleted successfully.", "success")
+            return redirect(f"/facilities/{facility_pk}")
+
+        else:
+            flash("You must be the owner of that comment to delete it.", "warning")
+            return redirect("/login")
+    
+    else:
+        flash("Please login to view that page.", "warning")
         return redirect("/login")

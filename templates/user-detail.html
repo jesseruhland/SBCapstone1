@@ -16,10 +16,14 @@
 <p>
   <a href="/facilities/{{favorite.facility_pk}}">{{favorite.facility_name}}</a>
   {{favorite.facility_address}}
-  <form action="/facilities/{{favorite.facility_pk}}/favorite/delete" method="POST">
-    <button>Un-Favorite</button>
-  </form>
 </p>
+
+<form
+  action="/facilities/{{favorite.facility_pk}}/favorite/delete"
+  method="POST"
+>
+  <button>Un-Favorite</button>
+</form>
 {% endfor %}
 
 <h1>My Private Comments</h1>
@@ -30,6 +34,12 @@
   {{comment.content}}
   <br />
   <small>Note: This comment is private.</small>
+  <small
+    ><a href="/comments/{{comment.id}}/update">Update</a>
+    <form action="/comments/{{comment.id}}/delete" method="POST">
+      <button>Delete</button>
+    </form></small
+  >
 </p>
 {% endif %} {% endfor %}
 
@@ -39,5 +49,11 @@
   <a href="/facilities/{{comment.facility_pk}}">{{comment.facility_name}}</a>
   <br />
   {{comment.content}}
+  <small
+    ><a href="/comments/{{comment.id}}/update">Update</a>
+    <form action="/comments/{{comment.id}}/delete" method="POST">
+      <button>Delete</button>
+    </form></small
+  >
 </p>
 {% endif %} {% endfor %} {% endblock %}
