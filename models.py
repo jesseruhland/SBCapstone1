@@ -1,8 +1,8 @@
 """Models for SaferSexNYC app"""
 
 from flask_sqlalchemy import SQLAlchemy
-
 from flask_bcrypt import Bcrypt
+
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -31,8 +31,8 @@ class User(db.Model):
     zip_code = db.Column(db.Integer, nullable=False)
     password = db.Column(db.String, nullable=False)
 
-    comments = db.relationship("Comment", backref="users")
-    favorites = db.relationship("Favorite", backref="users")
+    comments = db.relationship("Comment", backref="user")
+    fav_sites = db.relationship("Site", secondary="favorites", backref="fav_users")
 
     @classmethod
     def register(cls, username, first_name, last_name, email, zip_code, password):
@@ -125,3 +125,5 @@ class Site(db.Model):
     lubricant = db.Column(db.Boolean)
     facility_type = db.Column(db.String)
     website = db.Column(db.String)
+
+    comments = db.relationship("Comment", backref="site")

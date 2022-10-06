@@ -1,13 +1,12 @@
 """SaferSexNYC application."""
 
-from flask import Flask, request, redirect, render_template, flash, session, g
+from flask import Flask, request, redirect, render_template, flash, session, g, jsonify
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Comment, Favorite, Site
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
-from secret import api_app_token
 from sqlalchemy.exc import IntegrityError
-import pandas as pd
-from sodapy import Socrata
+import jsonpickle
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///safer_sex_nyc'
@@ -17,7 +16,10 @@ app.config['SECRET_KEY'] = 'secretkey'
 
 # debug = DebugToolbarExtension(app)
 
+
 connect_db(app)
+
+
 
 @app.before_request
 def add_user_to_global():
@@ -27,16 +29,6 @@ def add_user_to_global():
     
     else:
         g.user = None
-
-def check_login():
-    """Determine if a user is currently logged-in. If so, return that user object.  If not, return False."""
-
-    if session.get("username"):
-        id = session["username"]
-        user = User.query.get_or_404(id)
-        return user
-    else:
-        return False
 
 # def login_required(f):
 #     @wraps(f)
@@ -53,8 +45,8 @@ def check_login():
 def display_homepage():
     """Display the homepage of the application."""
 
-    if check_login():
-        return redirect("/sites")
+    if g.user:
+        return redirect("/sites/search")
     return render_template("homepage.html")
 
 
@@ -63,8 +55,8 @@ def log_in_user():
     """On GET -> Display login form
     On POST -> Validate user login credentials, if valid save user to session."""
 
-    if check_login():
-        return redirect("/sites")
+    if g.user:
+        return redirect("/sites/search")
     
     form = LoginForm()
 
@@ -130,7 +122,7 @@ def create_new_user():
 def display_user_detail(username):
     """Display user details if a current user is logged in."""
 
-    if check_login():
+    if g.user:
         user = User.query.get_or_404(username)
         return render_template("user-detail.html", user=user)
     else:
@@ -169,7 +161,7 @@ def display_user_edit_form(username):
         else:
             form.username.errors=["Invalid password. Please try again"]
 
-    if check_login() == user:
+    if g.user == user:
         return render_template("user-update.html", form=form, user=user)
 
     else:
@@ -200,7 +192,7 @@ def delete_user(username):
         else:
             form.password.errors=["Invalid username/password combination. Please try again"]
     
-    if check_login() == user:
+    if g.user == user:
         return render_template("user-delete.html", form=form, user=user)
 
     else:
@@ -211,10 +203,22 @@ def delete_user(username):
 
 ################## Site Routes ##################
 
-client = Socrata("data.cityofnewyork.us", api_app_token)
-api_ext = "4kpn-sezh"
-
 @app.route("/sites")
+def return_search_results():
+    """Return search results in JSON based on query."""
+
+    query = Site.query
+    filters = create_filters(request.args)
+    
+    if len(filters) != 0:
+        result = query.filter(*filters).all()
+    else:
+        result = query.all()
+
+    resultjson = jsonpickle.encode(result)
+
+    return resultjson, 200
+
 
 @app.route("/sites/search")
 def display_site_search():
@@ -225,35 +229,21 @@ def display_site_search():
 
 @app.route("/sites/<int:site_id>")
 def display_site_details(site_id):
-    """Obtain site information from the API and display for user interaction."""
+    """Display information for a particular site."""
 
-    form = CommentForm()
+    site = Site.query.get_or_404(site_id)
 
-    if g.user:
-        favorite = Favorite.query.filter(Favorite.site_id==site_id, Favorite.username==g.user.username).one_or_none()
-    
-    else:
-        favorite = None
+    return render_template("site-detail.html", site=site)
 
-    result = client.get(api_ext, limit=1, site_id=site_id)
-    site = result[0]
 
-    comments = Comment.query.filter_by(site_id=site_id)
-
-    return render_template("site-detail.html", site=site, comments=comments, form=form, favorite=favorite)
-
+################## Favorite Routes ##################
 
 @app.route("/sites/<int:site_id>/favorite", methods=["POST"])
 def create_favorite(site_id):
     """Create a new favorite association between a user and a site."""
 
-    user = check_login()
-
-    if user:
-        site_name = request.form['site_name']
-        site_address = request.form['site_address']
-
-        new_favorite = Favorite(username=user.username, site_id=site_id, site_name=site_name, site_address=site_address)
+    if g.user:
+        new_favorite = Favorite(username=g.user.username, site_id=site_id)
 
         db.session.add(new_favorite)
         db.session.commit()
@@ -262,18 +252,16 @@ def create_favorite(site_id):
 
     else:
         flash(f"Please login to view that page.", "warning")
-        return redirect("/login")    
+        return redirect("/login") 
 
 
 @app.route("/sites/<int:site_id>/favorite/delete", methods=["POST"])
 def delete_favorite(site_id):
     """Delete a favorite association between a user and a site."""
 
-    user = check_login()
+    if g.user:
 
-    if user:
-
-        Favorite.query.filter(Favorite.site_id==site_id, Favorite.username==user.username).delete()
+        Favorite.query.filter(Favorite.site_id==site_id, Favorite.username==g.user.username).delete()
 
         db.session.commit()
 
@@ -291,33 +279,24 @@ def create_comment(site_id):
     """On GET -> Display new comment form.
     On POST -> Save new comment to database."""
 
-    user = check_login()
-
-    if user:
+    if g.user:
 
         form = CommentForm()
+        site = Site.query.get_or_404(site_id)
 
         if form.validate_on_submit():
             content = form.content.data
             private = form.private.data
 
-            result = client.get(api_ext, limit=1, site_id=site_id)
-            site = result[0]
-
-            site_name = site['sitename']
-            site_address = site['address']
-
-            new_comment = Comment(username=user.username, site_id=site_id, content=content, private=private, site_name=site_name, site_address=site_address)
+            new_comment = Comment(username=g.user.username, site_id=site_id, content=content, private=private)
 
             db.session.add(new_comment)
             db.session.commit()
 
-
-
             return redirect(f"/sites/{site_id}")
         
         else:
-            return render_template("comment-form.html", form=form)
+            return render_template("comment-form.html", form=form, site=site)
 
     else:
         flash(f"Please login to view that page.", "warning")
@@ -330,14 +309,13 @@ def update_comment(comment_id):
     On POST -> Save updates to comment.
     """
 
-    user = check_login()
-
-    if user:
+    if g.user:
 
         comment = Comment.query.get_or_404(comment_id)
+        site = Site.query.get_or_404(comment.site_id)
         form = CommentForm(obj=comment)
 
-        if comment.username == user.username:
+        if comment.username == g.user.username:
 
             if form.validate_on_submit():
 
@@ -353,7 +331,7 @@ def update_comment(comment_id):
                 return redirect(f"/sites/{comment.site_id}")
 
             else:
-                return render_template("comment-form.html", form=form)
+                return render_template("comment-update.html", form=form, site=site)
 
         else:
             flash(f"You must be the owner of that comment to edit it.", "warning")
@@ -368,13 +346,11 @@ def update_comment(comment_id):
 def delete_comment(comment_id):
     """Delete a comment from the database"""
 
-    user = check_login()
-
-    if user:
+    if g.user:
 
         comment = Comment.query.get_or_404(comment_id)
 
-        if comment.username == user.username:
+        if comment.username == g.user.username:
 
             site_id = comment.site_id
             db.session.delete(comment)
@@ -390,3 +366,31 @@ def delete_comment(comment_id):
     else:
         flash("Please login to view that page.", "warning")
         return redirect("/login")
+
+
+def create_filters(ra):
+
+    borough = ra.get("borough")
+    zip_code = ra.get("zip_code")
+    male_condoms = ra.get("male_condoms")
+    female_condoms = ra.get("fc2_female_insertive_condoms")
+    lubricant = ra.get("lubricant")
+
+    result = []
+
+    if borough:
+        result.append(Site.borough == borough)
+    
+    if zip_code:
+        result.append(Site.zip_code == zip_code)
+    
+    if male_condoms:
+        result.append(Site.male_condoms == male_condoms)
+    
+    if female_condoms:
+        result.append(Site.fc2_female_insertive_condoms == female_condoms)
+    
+    if lubricant:
+        result.append(Site.lubricant == lubricant)
+    
+    return result

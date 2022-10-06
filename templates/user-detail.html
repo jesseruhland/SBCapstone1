@@ -11,17 +11,14 @@
   <a href="/users/{{user.username}}/update">Update/Delete Your Profile</a>
 </div>
 
-<h1>My Favorite Facilities</h1>
-{% for favorite in user.favorites %}
+<h1>My Favorite Sites</h1>
+{% for site in user.fav_sites %}
 <p>
-  <a href="/facilities/{{favorite.facility_pk}}">{{favorite.facility_name}}</a>
-  {{favorite.facility_address}}
+  <a href="/sites/{{site.id}}">{{site.name}}</a>
+  {{site.address}}
 </p>
 
-<form
-  action="/facilities/{{favorite.facility_pk}}/favorite/delete"
-  method="POST"
->
+<form action="/site/{{site.id}}/favorite/delete" method="POST">
   <button>Un-Favorite</button>
 </form>
 {% endfor %}

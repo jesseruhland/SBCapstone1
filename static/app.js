@@ -1,4 +1,5 @@
 //  Variables
+const apiBaseUrl = "/sites";
 const $searchResultsList = $("#search-results-list");
 const $boroughSearchForm = $("#search-by-borough-form");
 const $boroughSearchBtn = $("#borough-search-button");
@@ -11,7 +12,7 @@ const $similarLocationsBtn = $("#similar-locations-button");
 // Add the visual elements to the page
 const addToPage = (siteObj) => {
   const newLi = document.createElement("li");
-  newLi.innerHTML = `<a href="/sites/${siteObj.site_pk}">${siteObj.sitename}</a> ${siteObj.address}`;
+  newLi.innerHTML = `<a href="/sites/${siteObj.id}">${siteObj.name}</a> ${siteObj.address}`;
 
   $searchResultsList.append(newLi);
 };
@@ -36,15 +37,15 @@ $boroughSearchBtn.on("click", async function (event) {
   $searchResultsList.html("");
   const borough = $("#borough-input").val();
 
-  const results = await $.ajax({
+  const response = await $.ajax({
     url: apiBaseUrl,
-    type: "GET",
+    method: "GET",
     data: {
-      $limit: 500,
-      $$app_token: apiAppToken,
       borough: borough,
     },
   });
+
+  results = JSON.parse(response);
 
   for (let result in results) {
     addToPage(results[result]);
@@ -62,11 +63,11 @@ $advancedSubmitBtn.on("click", async function (event) {
   const $lubricant = $("#lubricant-input");
   const $openNow = $("#open-now-input");
 
-  const data = { $limit: 500, $$app_token: apiAppToken };
+  const data = {};
 
   //  Adjust search criteria for data request based on user input
   if (zipCode != "") {
-    data.zipcode = zipCode;
+    data.zip_code = zipCode;
   }
 
   if ($maleCondoms.prop("checked")) {
@@ -81,11 +82,13 @@ $advancedSubmitBtn.on("click", async function (event) {
     data.lubricant = "true";
   }
 
-  const results = await $.ajax({
+  const response = await $.ajax({
     url: apiBaseUrl,
     type: "GET",
     data: data,
   });
+
+  results = JSON.parse(response);
 
   for (let result in results) {
     //  Filter if "open now" is selected in the search form

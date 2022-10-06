@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+<!--  -->
+{% block title %}{{site.name}} Details{% endblock %}
+<!--  -->
+{% block main_content %} {{site.name}} {{site.address}} {% if g.user %} {% if
+g.user in site.fav_users %}
+<form action="/sites/{{site.id}}/favorite/delete" method="POST">
+  <button>Un-Favorite</button>
+</form>
+{% else %}
+<form action="/sites/{{site.id}}/favorite" method="POST">
+  <button>Favorite</button>
+</form>
+{% endif %} {% endif %}
+
+<a href="/sites/{{site.id}}/comments"><button>New Comment</button></a>
+
+<h1>Public Comments</h1>
+{% for comment in site.comments %} {% if comment.private == False %}
+<div>
+  <h4>{{comment.username}}</h4>
+  <p>{{comment.content}}</p>
+</div>
+{% endif %} {% endfor %} {% if g.user %}
+<h1>My Private Comments</h1>
+{% for comment in site.comments %} {% if comment.private == True and
+comment.username == g.user.username%}
+<div>
+  <h4>{{comment.username}}</h4>
+  <p>{{comment.content}}</p>
+</div>
+{% endif %} {% endfor %} {% endif %}
+
+<button id="similar-locations-button">See Similar Locations</button>
+<div id="similar-locations-div" hidden>
+  <h1>Similar Locations</h1>
+  <ul id="similar-locations-list"></ul>
+</div>
+{%endblock %}
