@@ -6,7 +6,9 @@ from models import db, connect_db, User, Comment, Favorite, Site
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
 from sqlalchemy.exc import IntegrityError
 import jsonpickle
+from dotenv import load_dotenv
 
+load_dotenv()  # take environment variables from .env.
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///safer_sex_nyc'
@@ -43,8 +45,8 @@ def add_user_to_global():
 def display_homepage():
     """Display the homepage of the application."""
 
-    if g.user:
-        return redirect("/sites/search")
+    # if g.user:
+    #     return redirect("/sites/search")
     return render_template("homepage.html")
 
 
@@ -288,7 +290,7 @@ def create_favorite(site_id):
         db.session.add(new_favorite)
         db.session.commit()
 
-        return redirect(f"/sites/{site_id}")
+        return ("success", 200)
 
     else:
         flash(f"Please login to view that page.", "warning")
@@ -305,7 +307,7 @@ def delete_favorite(site_id):
 
         db.session.commit()
 
-        return redirect(f"/sites/{site_id}")
+        return ("success", 200)
 
     else:
         flash(f"Please login to view that page.", "warning")
@@ -392,12 +394,13 @@ def delete_comment(comment_id):
 
         if comment.username == g.user.username:
 
-            site_id = comment.site_id
+            # site_id = comment.site_id
             db.session.delete(comment)
             db.session.commit()
 
-            flash("Your comment has been deleted successfully.", "success")
-            return redirect(f"/sites/{site_id}")
+            # flash("Your comment has been deleted successfully.", "success")
+            return ("success", 200)
+            # redirect(f"/sites/{site_id}")
 
         else:
             flash("You must be the owner of that comment to delete it.", "warning")

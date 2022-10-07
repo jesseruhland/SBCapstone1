@@ -2,7 +2,7 @@
 <!--  -->
 {% block title %}SaferSexNYC{% endblock %}
 <!--  -->
-{% block main_content %}
+{% block main_content %} {% if not g.user %}
 <div>
   <a href="/sites/search"><button>Anonymous Search</button></a>
   <p>Returning user?</p>
@@ -10,4 +10,8 @@
   <p>New user? Sign up for an account here:</p>
   <a href="/users/register"><button>Register</button></a>
 </div>
+{% endif %}
+
+<div id="map" style="width: 100%; height: 600px"></div>
+<script src="/static/map.js"></script>
 {% endblock %}

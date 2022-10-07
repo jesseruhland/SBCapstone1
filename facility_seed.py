@@ -3,6 +3,10 @@ import pandas as pd
 from sodapy import Socrata
 from models import Site, db
 from app import app
+# from dotenv import load_dotenv
+# from .env import API_APP_TOKEN
+
+# load_dotenv()  # take environment variables from .env
 
 
 # Create all tables

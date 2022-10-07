@@ -5,13 +5,19 @@
 {% block main_content %} {{site.name}} {{site.address}} {% if g.user %}
 <a href="/sites/{{site.id}}/comments"><button>New Comment</button></a>
 {% if g.user in site.fav_users %}
-<form action="/sites/{{site.id}}/favorite/delete" method="POST">
-  <button>Un-Favorite</button>
-</form>
+<!-- <form action="/sites/{{site.id}}/favorite/delete" method="POST"> -->
+<button id="site-page-unfav-btn" data-site-id="{{site.id}}">Un-Favorite</button>
+<button id="site-page-fav-btn" data-site-id="{{site.id}}" hidden>
+  Favorite
+</button>
+<!-- </form> -->
 {% else %}
-<form action="/sites/{{site.id}}/favorite" method="POST">
-  <button>Favorite</button>
-</form>
+<!-- <form action="/sites/{{site.id}}/favorite" method="POST"> -->
+<button id="site-page-fav-btn" data-site-id="{{site.id}}">Favorite</button>
+<button id="site-page-unfav-btn" data-site-id="{{site.id}}" hidden>
+  Un-Favorite
+</button>
+<!-- </form> -->
 {% endif %} {% endif %}
 
 <h1>Details</h1>
@@ -49,35 +55,35 @@
 </ul>
 
 <h1>Public Comments</h1>
-{% for comment in site.comments %} {% if comment.private == False %}
+{% for comment in site.comments|reverse %} {% if comment.private == False %}
 <div>
   <h4>{{comment.username}}</h4>
-  <p>
-    {{comment.content}} {% if comment.username == g.user.username %}
-    <small
-      ><a href="/comments/{{comment.id}}/update">Update</a>
-      <form action="/comments/{{comment.id}}/delete" method="POST">
-        <button>Delete</button>
-      </form></small
-    >{% endif %}
-  </p>
+  {{comment.content}} {% if comment.username == g.user.username %}
+  <small
+    ><a href="/comments/{{comment.id}}/update">Update</a>
+    <!-- <form action="/comments/{{comment.id}}/delete" method="POST"> -->
+    <button class="delete-comment-button" data-comment-id="{{comment.id}}">
+      Delete
+    </button>
+    <!-- </form> --> </small
+  >{% endif %}
 </div>
 {% endif %} {% endfor %} {% if g.user %}
 <h1>My Private Comments</h1>
-{% for comment in site.comments %} {% if comment.private == True and
+{% for comment in site.comments|reverse %} {% if comment.private == True and
 comment.username == g.user.username%}
 <div>
   <h4>{{comment.username}}</h4>
-  <p>
-    {{comment.content}}<br />
-    <small>Note: This comment is private.</small>
-    <small
-      ><a href="/comments/{{comment.id}}/update">Update</a>
-      <form action="/comments/{{comment.id}}/delete" method="POST">
-        <button>Delete</button>
-      </form></small
-    >
-  </p>
+  {{comment.content}}<br />
+  <small>Note: This comment is private.</small>
+  <small
+    ><a href="/comments/{{comment.id}}/update">Update</a>
+    <!-- <form action="/comments/{{comment.id}}/delete" method="POST"> -->
+    <button class="delete-comment-button" data-comment-id="{{comment.id}}">
+      Delete
+    </button>
+    <!-- </form> -->
+  </small>
 </div>
 {% endif %} {% endfor %} {% endif %}
 
