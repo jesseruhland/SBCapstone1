@@ -46,6 +46,11 @@ for f in result:
     facility_type = f.get("facility_type")
     website = f.get("website")
 
+    if website:
+        website = website.replace('"','')
+
+    
+
     new_site = Site(id=id, name=name, service_category=service_category, service_type=service_type, building_number=building_number, partner_type=partner_type, partner_type_detailed=partner_type_detailed, address=address, address_2=address_2, borough=borough, zip_code=zip_code, latitude=latitude, longitude=longitude, phone=phone, additional_info=additional_info, start_date=start_date, end_date=end_date, monday=monday, tuesday=tuesday, wednesday=wednesday, thursday=thursday, friday=friday, saturday=saturday, sunday=sunday, condoms_male=condoms_male, fc2_female_insertive_condoms=fc2_female_insertive_condoms, lubricant=lubricant, facility_type=facility_type, website=website)
 
     db.session.add(new_site)

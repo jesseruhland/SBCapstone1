@@ -2,8 +2,9 @@
 <!--  -->
 {% block title %}{{site.name}} Details{% endblock %}
 <!--  -->
-{% block main_content %} {{site.name}} {{site.address}} {% if g.user %} {% if
-g.user in site.fav_users %}
+{% block main_content %} {{site.name}} {{site.address}} {% if g.user %}
+<a href="/sites/{{site.id}}/comments"><button>New Comment</button></a>
+{% if g.user in site.fav_users %}
 <form action="/sites/{{site.id}}/favorite/delete" method="POST">
   <button>Un-Favorite</button>
 </form>
@@ -13,13 +14,53 @@ g.user in site.fav_users %}
 </form>
 {% endif %} {% endif %}
 
-<a href="/sites/{{site.id}}/comments"><button>New Comment</button></a>
+<h1>Details</h1>
+<p>
+  Name: {{site.name}} <br />
+  Location Type: {{site.partner_type}} ({{site.partner_type_detailed}}) <br />
+  Address: {{site.address}} <br />
+  Borough: {{site.borough}} <br />
+  Zip Code: {{site.zip_code}} <br />
+  Phone Number: {% if site.phone %}<a href="tel:{{site.phone}}"
+    >{{site.phone}}</a
+  >
+  {% endif %}<br />
+  Website: {% if site.website %}
+  <a href="{{site.website}}" target="_blank" rel="noopener noreferrer"
+    >{{site.name}}</a
+  >
+  {% endif %}<br />
+</p>
+<h4>Hours</h4>
+<ul>
+  <li>Sunday: {{site.sunday}}</li>
+  <li>Monday: {{site.monday}}</li>
+  <li>Tuesday: {{site.tuesday}}</li>
+  <li>Wednesday: {{site.wednesday}}</li>
+  <li>Thursday: {{site.thursday}}</li>
+  <li>Friday: {{site.friday}}</li>
+  <li>Saturday: {{site.saturday}}</li>
+</ul>
+<h4>Product Availability</h4>
+<ul>
+  <li>Male Condoms: {{site.condoms_male}}</li>
+  <li>Female Condoms: {{site.fc2_female_insertive_condoms}}</li>
+  <li>Lubricant: {{site.lubricant}}</li>
+</ul>
 
 <h1>Public Comments</h1>
 {% for comment in site.comments %} {% if comment.private == False %}
 <div>
   <h4>{{comment.username}}</h4>
-  <p>{{comment.content}}</p>
+  <p>
+    {{comment.content}} {% if comment.username == g.user.username %}
+    <small
+      ><a href="/comments/{{comment.id}}/update">Update</a>
+      <form action="/comments/{{comment.id}}/delete" method="POST">
+        <button>Delete</button>
+      </form></small
+    >{% endif %}
+  </p>
 </div>
 {% endif %} {% endfor %} {% if g.user %}
 <h1>My Private Comments</h1>
@@ -27,13 +68,49 @@ g.user in site.fav_users %}
 comment.username == g.user.username%}
 <div>
   <h4>{{comment.username}}</h4>
-  <p>{{comment.content}}</p>
+  <p>
+    {{comment.content}}<br />
+    <small>Note: This comment is private.</small>
+    <small
+      ><a href="/comments/{{comment.id}}/update">Update</a>
+      <form action="/comments/{{comment.id}}/delete" method="POST">
+        <button>Delete</button>
+      </form></small
+    >
+  </p>
 </div>
 {% endif %} {% endfor %} {% endif %}
 
-<button id="similar-locations-button">See Similar Locations</button>
-<div id="similar-locations-div" hidden>
+<div id="similar-locations-div">
   <h1>Similar Locations</h1>
-  <ul id="similar-locations-list"></ul>
+  <button id="hide-similar-button" hidden>Hide Similar Locations</button>
+  <form id="similar-location-form">
+    <input
+      name="similar-zip-code-input"
+      id="similar-zip-code-input"
+      value="{{site.zip_code}}"
+      hidden
+    />
+    <input
+      name="similar-mc-input"
+      id="similar-mc-input"
+      value="{{site.condoms_male}}"
+      hidden
+    />
+    <input
+      name="similar-fc-input"
+      id="similar-fc-input"
+      value="{{site.fc2_female_insertive_condoms}}"
+      hidden
+    />
+    <input
+      name="similar-lubricant-input"
+      id="similar-lubricant-input"
+      value="{{site.lubricant}}"
+      hidden
+    />
+    <button id="similar-locations-button">See Similar Locations</button>
+  </form>
+  <ul id="similar-locations-list" hidden></ul>
 </div>
 {%endblock %}

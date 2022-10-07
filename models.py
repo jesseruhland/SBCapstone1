@@ -54,6 +54,22 @@ class User(db.Model):
         
         else:
             return False
+    
+    @classmethod
+    def change_password(cls, username, password, new_password):
+        
+        user = User.authenticate(username, password)
+        
+        if user:
+            hashed = bcrypt.generate_password_hash(new_password)
+            hashed_utf8 = hashed.decode("utf8")
+
+            user.password = hashed_utf8
+
+            return user
+        
+        else:
+            return False
 
 
 

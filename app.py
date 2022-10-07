@@ -19,8 +19,6 @@ app.config['SECRET_KEY'] = 'secretkey'
 
 connect_db(app)
 
-
-
 @app.before_request
 def add_user_to_global():
 
@@ -101,6 +99,11 @@ def create_new_user():
         email = form.email.data
         zip_code = int(form.zip_code.data)
         password = form.password.data
+        confirm_password = request.form['confirm-password-input']
+
+        if password != confirm_password:
+            form.password.errors.append("Password entry does not match. Please try again")
+            return render_template("register.html", form=form)
 
         new_user = User.register(username=username, first_name=first_name, last_name=last_name, email=email, zip_code=zip_code, password=password)
 
@@ -108,8 +111,8 @@ def create_new_user():
         try:
             db.session.commit()
         except IntegrityError:
-            form.username.errors.append('That username is already in use. Please choose another.')
-            return redirect("/users/register")
+            form.username.errors.append('That username or email is already in use. Please choose another.')
+            return render_template("register.html", form=form)
         
         session["username"] = new_user.username
 
@@ -156,6 +159,7 @@ def display_user_edit_form(username):
 
             session["username"] = this_user.username
 
+            flash(f"Your profile has been updated.", "success")
             return redirect(f"/users/{this_user.username}")
 
         else:
@@ -167,6 +171,42 @@ def display_user_edit_form(username):
     else:
         flash("You are not authorized to access that page.", "danger")
         return redirect(f"/users/{session.get('username')}")
+
+
+@app.route("/users/<username>/update/password", methods=["GET", "POST"])
+def change_user_password(username):
+
+    user = User.query.get_or_404(username)
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        new_password = request.form['new-password-input']
+        confirm_password = request.form['confirm-password-input']
+
+        if new_password != confirm_password:
+            form.password.errors=["New password entry does not match. Please try again"]
+            return render_template("user-password.html", form=form, user=user)
+
+        this_user = User.change_password(username, password, new_password)
+
+        if this_user:
+            db.session.commit()
+
+            flash(f"Your password has been changed.", "success")
+            return redirect(f"/users/{username}")
+        
+        else:
+            form.password.errors=["Invalid username/password combination. Please try again"]
+    
+    if g.user == user:
+        return render_template("user-password.html", form=form, user=user)
+
+    else:
+        flash("You are not authorized to access that page.", "danger")
+        return redirect(f"/users/{session.get('username')}")
+
 
 @app.route("/users/<username>/delete", methods=["GET", "POST"])
 def delete_user(username):
@@ -371,6 +411,7 @@ def delete_comment(comment_id):
 def create_filters(ra):
 
     borough = ra.get("borough")
+    site_name = ra.get("site_name")
     zip_code = ra.get("zip_code")
     male_condoms = ra.get("male_condoms")
     female_condoms = ra.get("fc2_female_insertive_condoms")
@@ -380,6 +421,9 @@ def create_filters(ra):
 
     if borough:
         result.append(Site.borough == borough)
+
+    if site_name:
+        result.append(Site.name.ilike(f"%{site_name}%"))
     
     if zip_code:
         result.append(Site.zip_code == zip_code)

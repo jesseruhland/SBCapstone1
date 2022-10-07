@@ -26,7 +26,7 @@
 <h1>My Private Comments</h1>
 {% for comment in user.comments %} {% if comment.private == True %}
 <p>
-  <a href="/facilities/{{comment.facility_pk}}">{{comment.facility_name}}</a>
+  <a href="/sites/{{comment.site_id}}">{{comment.site.name}}</a>
   <br />
   {{comment.content}}
   <br />
@@ -43,7 +43,7 @@
 <h1>My Public Comments</h1>
 {% for comment in user.comments %} {% if comment.private == False %}
 <p>
-  <a href="/facilities/{{comment.facility_pk}}">{{comment.facility_name}}</a>
+  <a href="/sites/{{comment.site_id}}">{{comment.site.name}}</a>
   <br />
   {{comment.content}}
   <small

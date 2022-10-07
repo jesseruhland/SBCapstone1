@@ -1,6 +1,7 @@
 //  Variables
 const apiBaseUrl = "/sites";
 const $searchResultsList = $("#search-results-list");
+const $similarLocationsList = $("#similar-locations-list");
 const $boroughSearchForm = $("#search-by-borough-form");
 const $boroughSearchBtn = $("#borough-search-button");
 const $advancedSearchBtn = $("#advance-search-button");
@@ -8,13 +9,14 @@ const $advancedSearchForm = $("#advanced-search-form");
 const $basicSearchBtn = $("#basic-search-button");
 const $advancedSubmitBtn = $("#advanced-submit-button");
 const $similarLocationsBtn = $("#similar-locations-button");
+const $hideSimilarBtn = $("#hide-similar-button");
 
 // Add the visual elements to the page
-const addToPage = (siteObj) => {
+const addToPage = (siteObj, location) => {
   const newLi = document.createElement("li");
-  newLi.innerHTML = `<a href="/sites/${siteObj.id}">${siteObj.name}</a> ${siteObj.address}`;
+  newLi.innerHTML = `<a href="/sites/${siteObj.id}">${siteObj.name}</a> ${siteObj.borough}`;
 
-  $searchResultsList.append(newLi);
+  location.append(newLi);
 };
 
 //  Advanced search initiator
@@ -48,7 +50,7 @@ $boroughSearchBtn.on("click", async function (event) {
   results = JSON.parse(response);
 
   for (let result in results) {
-    addToPage(results[result]);
+    addToPage(results[result], $searchResultsList);
   }
 });
 
@@ -57,7 +59,8 @@ $advancedSubmitBtn.on("click", async function (event) {
   event.preventDefault();
   $searchResultsList.html("");
 
-  const zipCode = $("#zip-code-input").val();
+  const $siteName = $("#site-name-input").val();
+  const $zipCode = $("#zip-code-input").val();
   const $maleCondoms = $("#male-condoms-input");
   const $femaleCondoms = $("#female-condoms-input");
   const $lubricant = $("#lubricant-input");
@@ -66,8 +69,13 @@ $advancedSubmitBtn.on("click", async function (event) {
   const data = {};
 
   //  Adjust search criteria for data request based on user input
-  if (zipCode != "") {
-    data.zip_code = zipCode;
+
+  if ($siteName != "") {
+    data.site_name = $siteName;
+  }
+
+  if ($zipCode != "") {
+    data.zip_code = $zipCode;
   }
 
   if ($maleCondoms.prop("checked")) {
@@ -100,7 +108,7 @@ $advancedSubmitBtn.on("click", async function (event) {
 
       checkDayAndTime(results[result], day, hour, minutes);
     } else {
-      addToPage(results[result]);
+      addToPage(results[result], $searchResultsList);
     }
   }
 });
@@ -128,12 +136,12 @@ const checkDayAndTime = (siteObj, day, hour, minutes) => {
 
     //  Handle locations that are open now
     if (open[0] <= hour && hour < close[0]) {
-      addToPage(siteObj);
+      addToPage(siteObj, $searchResultsList);
     }
 
     //  Handle locations closing within the hour
     else if (hour == close[0] && minutes < close[1]) {
-      addToPage(siteObj);
+      addToPage(siteObj, $searchResultsList);
     }
   }
 };
@@ -167,3 +175,57 @@ const getTime = (time) => {
 
   return [hour, mins];
 };
+
+// Similiar Location Handler:
+
+$similarLocationsBtn.on("click", async function (event) {
+  event.preventDefault();
+  $similarLocationsList.html("");
+
+  const $simZipCode = $("#similar-zip-code-input").val();
+  const $simMaleCondoms = $("#similar-mc-input").val();
+  const $simFemaleCondoms = $("#similar-fc-input").val();
+  const $simLubricant = $("#similar-lubricant-input").val();
+
+  const data = {};
+
+  if ($simZipCode != "") {
+    data.zip_code = $simZipCode;
+  }
+
+  if ($simMaleCondoms == "True") {
+    data.condoms_male = "true";
+  }
+
+  if ($simFemaleCondoms == "True") {
+    data.fc2_female_insertive_condoms = "true";
+  }
+
+  if ($simLubricant == "True") {
+    data.lubricant = "true";
+  }
+
+  const response = await $.ajax({
+    url: apiBaseUrl,
+    type: "GET",
+    data: data,
+  });
+
+  results = JSON.parse(response);
+
+  for (let result in results) {
+    addToPage(results[result], $similarLocationsList);
+  }
+
+  $similarLocationsBtn.hide();
+  $hideSimilarBtn.show();
+
+  $similarLocationsList.show();
+});
+
+//  Hide Similar Results
+$hideSimilarBtn.on("click", function () {
+  $hideSimilarBtn.hide();
+  $similarLocationsBtn.show();
+  $similarLocationsList.hide();
+});
