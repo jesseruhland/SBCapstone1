@@ -1,14 +1,16 @@
 """SaferSexNYC application."""
 
 from flask import Flask, request, redirect, render_template, flash, session, g, jsonify
+import requests
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Comment, Favorite, Site
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
 from sqlalchemy.exc import IntegrityError
 import jsonpickle
-from dotenv import load_dotenv
+import os
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()  # take environment variables from .env.
+load_dotenv(find_dotenv())  # take environment variables from .env.
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///safer_sex_nyc'
@@ -45,9 +47,11 @@ def add_user_to_global():
 def display_homepage():
     """Display the homepage of the application."""
 
+    sites = Site.query.all()
+
     # if g.user:
     #     return redirect("/sites/search")
-    return render_template("homepage.html")
+    return render_template("homepage.html", sites=sites)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -275,7 +279,8 @@ def display_site_details(site_id):
 
     site = Site.query.get_or_404(site_id)
 
-    return render_template("site-detail.html", site=site)
+    mapboxAccessToken = os.getenv('MAPBOX_ACCESS_TOKEN')
+    return render_template("site-detail.html", site=site, mapboxAccessToken=mapboxAccessToken)
 
 
 ################## Favorite Routes ##################

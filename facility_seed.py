@@ -1,19 +1,14 @@
-from secret import api_app_token
 import pandas as pd
 from sodapy import Socrata
 from models import Site, db
 from app import app
-# from dotenv import load_dotenv
-# from .env import API_APP_TOKEN
-
-# load_dotenv()  # take environment variables from .env
-
+import os
 
 # Create all tables
 db.drop_all()
 db.create_all()
 
-client = Socrata("data.cityofnewyork.us", api_app_token)
+client = Socrata("data.cityofnewyork.us", os.getenv('API_APP_TOKEN'))
 api_ext = "4kpn-sezh"
 
 

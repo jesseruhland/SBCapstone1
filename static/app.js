@@ -14,7 +14,6 @@ const $deleteCommentBtn = $(".delete-comment-button");
 const $userUnFavBtn = $(".user-page-unfav-btn");
 const $siteUnFavBtn = $("#site-page-unfav-btn");
 const $siteFavBtn = $("#site-page-fav-btn");
-// const $mapboxglMarker = $(".mapboxgl-marker");
 
 // Add the visual elements to the page
 const addToPage = (siteObj, location) => {
@@ -22,7 +21,6 @@ const addToPage = (siteObj, location) => {
   newLi.innerHTML = `<a href="/sites/${siteObj.id}">${siteObj.name}</a> ${siteObj.borough}`;
 
   location.append(newLi);
-  // addToMap(siteObj);
 };
 
 //  Advanced search initiator
@@ -236,6 +234,7 @@ $hideSimilarBtn.on("click", function () {
   $similarLocationsList.hide();
 });
 
+//  Send delete comment request without refreshing the page, update front end to sync with back end
 $deleteCommentBtn.on("click", async function (event) {
   commentID = event.target.getAttribute("data-comment-id");
 
@@ -247,6 +246,7 @@ $deleteCommentBtn.on("click", async function (event) {
   event.target.parentElement.parentElement.remove();
 });
 
+//  Send delete favorite request from USER DETAIL PAGE without refreshing the page, update front end to sync with back end
 $userUnFavBtn.on("click", async function (event) {
   siteID = event.target.getAttribute("data-site-id");
 
@@ -258,6 +258,7 @@ $userUnFavBtn.on("click", async function (event) {
   event.target.parentElement.remove();
 });
 
+//  Send delete favorite request from SITE DETAIL PAGE without refreshing the page, update front end to sync with back end
 $siteUnFavBtn.on("click", async function (event) {
   siteID = event.target.getAttribute("data-site-id");
 
@@ -270,6 +271,7 @@ $siteUnFavBtn.on("click", async function (event) {
   $siteFavBtn.show();
 });
 
+//  Send new favorite request from SITE DETAIL PAGE without refreshing the page, update front end to sync with back end
 $siteFavBtn.on("click", async function (event) {
   siteID = event.target.getAttribute("data-site-id");
 
@@ -281,38 +283,3 @@ $siteFavBtn.on("click", async function (event) {
   $siteFavBtn.hide();
   $siteUnFavBtn.show();
 });
-
-// function addToMap(siteObj) {
-//   const marker = new mapboxgl.Marker()
-//     .setLngLat([siteObj.longitude, siteObj.latitude])
-//     .addTo(map)
-//     .setPopup(new mapboxgl.Popup().setHTML(`<h4>${siteObj.name}</h4>`));
-//   // const markerHeight = 50;
-//   // const markerRadius = 10;
-//   // const linearOffset = 25;
-//   // const popupOffsets = {
-//   //   top: [0, 0],
-//   //   "top-left": [0, 0],
-//   //   "top-right": [0, 0],
-//   //   bottom: [0, -markerHeight],
-//   //   "bottom-left": [
-//   //     linearOffset,
-//   //     (markerHeight - markerRadius + linearOffset) * -1,
-//   //   ],
-//   //   "bottom-right": [
-//   //     -linearOffset,
-//   //     (markerHeight - markerRadius + linearOffset) * -1,
-//   //   ],
-//   //   left: [markerRadius, (markerHeight - markerRadius) * -1],
-//   //   right: [-markerRadius, (markerHeight - markerRadius) * -1],
-//   // };
-
-//   // const popup = new mapboxgl.Popup({
-//   //   offset: popupOffsets,
-//   //   className: "my-class",
-//   // })
-//   //   .setLngLat
-
-//   //   .setMaxWidth("300px")
-//   //   .addTo(map);
-// }

@@ -21,6 +21,23 @@
 {% endif %} {% endif %}
 
 <h1>Details</h1>
+
+<div id="map" style="width: 400px; height: 300px"></div>
+<script>
+      mapboxgl.accessToken = {{mapboxAccessToken | tojson}}
+    var map = new mapboxgl.Map({
+      container: "map",
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [{{site.longitude}}, {{site.latitude}}],
+      zoom: 13,
+    });
+
+  const marker = new mapboxgl.Marker()
+  .setLngLat([{{site.longitude}}, {{site.latitude}}])
+  .setPopup(new mapboxgl.Popup().setHTML('<h4>{{site.name}}</h4><p>{{site.address}}</p>')) // add popup
+  .addTo(map);
+</script>
+
 <p>
   Name: {{site.name}} <br />
   Location Type: {{site.partner_type}} ({{site.partner_type_detailed}}) <br />
