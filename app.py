@@ -4,6 +4,7 @@ from flask import Flask, request, redirect, render_template, flash, session, g, 
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Comment, Favorite, Site
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
+from funcs import create_filters
 from sqlalchemy.exc import IntegrityError
 import jsonpickle
 import os
@@ -22,6 +23,7 @@ app.config['SECRET_KEY'] = 'secretkey'
 
 connect_db(app)
 
+
 @app.before_request
 def add_user_to_global():
 
@@ -31,16 +33,6 @@ def add_user_to_global():
     else:
         g.user = None
 
-# def login_required(f):
-#     @wraps(f)
-#     def wrap(*args, **kwargs):
-#         if "username" in session:
-#             return f(*args, **kwargs)
-#         else:
-#             flash("You must login to view that page.", "warning")
-#             return redirect("/login")
-        
-#     return wrap
 
 @app.route("/")
 def display_homepage():
@@ -48,8 +40,6 @@ def display_homepage():
 
     sites = Site.query.all()
 
-    # if g.user:
-    #     return redirect("/sites/search")
     return render_template("homepage.html", sites=sites)
 
 
@@ -132,9 +122,13 @@ def display_user_detail(username):
 
     if g.user:
         user = User.query.get_or_404(username)
-        return render_template("user-detail.html", user=user)
+        if g.user == user:
+            return render_template("user-detail.html", user=user)
+        else:
+            flash("You are not authorized to access that page.", "danger")
+            return redirect(f"/users/{g.user.username}")
     else:
-        flash(f"Please login to view that page.", "warning")
+        flash("Please login to view that page.", "warning")
         return redirect("/login")
 
     
@@ -175,7 +169,7 @@ def display_user_edit_form(username):
 
     else:
         flash("You are not authorized to access that page.", "danger")
-        return redirect(f"/users/{session.get('username')}")
+        return redirect("/")
 
 
 @app.route("/users/<username>/update/password", methods=["GET", "POST"])
@@ -210,7 +204,7 @@ def change_user_password(username):
 
     else:
         flash("You are not authorized to access that page.", "danger")
-        return redirect(f"/users/{session.get('username')}")
+        return redirect("/")
 
 
 @app.route("/users/<username>/delete", methods=["GET", "POST"])
@@ -242,7 +236,7 @@ def delete_user(username):
 
     else:
         flash("You are not authorized to access that page.", "danger")
-        return redirect(f"/users/{session.get('username')}")
+        return redirect("/")
 
 
 
@@ -297,7 +291,7 @@ def create_favorite(site_id):
         return ("success", 200)
 
     else:
-        flash(f"Please login to view that page.", "warning")
+        flash("Please login to access that functionality.", "warning")
         return redirect("/login") 
 
 
@@ -314,7 +308,7 @@ def delete_favorite(site_id):
         return ("success", 200)
 
     else:
-        flash(f"Please login to view that page.", "warning")
+        flash("Please login to access that functionality.", "warning")
         return redirect("/login")
 
 
@@ -345,7 +339,7 @@ def create_comment(site_id):
             return render_template("comment-form.html", form=form, site=site)
 
     else:
-        flash(f"Please login to view that page.", "warning")
+        flash("Please login to view that page.", "warning")
         return redirect("/login")
 
 
@@ -380,11 +374,11 @@ def update_comment(comment_id):
                 return render_template("comment-update.html", form=form, site=site)
 
         else:
-            flash(f"You must be the owner of that comment to edit it.", "warning")
+            flash("You must be the owner of that comment to edit it.", "warning")
             return redirect("/login")
     
     else:
-        flash(f"Please login to view that page.", "warning")
+        flash("Please login to view that page.", "warning")
         return redirect("/login")
 
 
@@ -398,13 +392,10 @@ def delete_comment(comment_id):
 
         if comment.username == g.user.username:
 
-            # site_id = comment.site_id
             db.session.delete(comment)
             db.session.commit()
 
-            # flash("Your comment has been deleted successfully.", "success")
             return ("success", 200)
-            # redirect(f"/sites/{site_id}")
 
         else:
             flash("You must be the owner of that comment to delete it.", "warning")
@@ -413,35 +404,3 @@ def delete_comment(comment_id):
     else:
         flash("Please login to view that page.", "warning")
         return redirect("/login")
-
-
-def create_filters(ra):
-
-    borough = ra.get("borough")
-    site_name = ra.get("site_name")
-    zip_code = ra.get("zip_code")
-    male_condoms = ra.get("male_condoms")
-    female_condoms = ra.get("fc2_female_insertive_condoms")
-    lubricant = ra.get("lubricant")
-
-    result = []
-
-    if borough:
-        result.append(Site.borough == borough)
-
-    if site_name:
-        result.append(Site.name.ilike(f"%{site_name}%"))
-    
-    if zip_code:
-        result.append(Site.zip_code == zip_code)
-    
-    if male_condoms:
-        result.append(Site.male_condoms == male_condoms)
-    
-    if female_condoms:
-        result.append(Site.fc2_female_insertive_condoms == female_condoms)
-    
-    if lubricant:
-        result.append(Site.lubricant == lubricant)
-    
-    return result

@@ -97,7 +97,7 @@ class Favorite(db.Model):
     def __repr__(self):
         """Display favorite relationship information"""
         f = self
-        return f"<Favorite Relationship username:{f.username}, facility:{f.facility_pk}>"
+        return f"<Favorite Relationship username:{f.username}, facility:{f.site_id}>"
 
     username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"), primary_key=True)
     site_id = db.Column(db.Integer, db.ForeignKey("sites.id", ondelete="CASCADE"), primary_key=True)
