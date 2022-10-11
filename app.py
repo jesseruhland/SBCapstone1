@@ -1,7 +1,6 @@
 """SaferSexNYC application."""
 
 from flask import Flask, request, redirect, render_template, flash, session, g, jsonify
-import requests
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Comment, Favorite, Site
 from forms import RegisterForm, LoginForm, UpdateUserForm, CommentForm
@@ -13,7 +12,7 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())  # take environment variables from .env.
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///safer_sex_nyc'
+app.config['SQLALCHEMY_DATABASE_URI'] = (os.environ.get('DATABASE_URL', 'postgresql:///safer_sex_nyc'))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = 'secretkey'
