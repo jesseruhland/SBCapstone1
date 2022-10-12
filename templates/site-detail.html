@@ -71,6 +71,7 @@
   <li>Lubricant: {{site.lubricant}}</li>
 </ul>
 
+{% if g.user %}
 <h1>Public Comments</h1>
 {% for comment in site.comments|reverse %} {% if comment.private == False %}
 <div>
@@ -85,7 +86,7 @@
     <!-- </form> --> </small
   >{% endif %}
 </div>
-{% endif %} {% endfor %} {% if g.user %}
+{% endif %} {% endfor %}
 <h1>My Private Comments</h1>
 {% for comment in site.comments|reverse %} {% if comment.private == True and
 comment.username == g.user.username%}

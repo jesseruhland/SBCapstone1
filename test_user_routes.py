@@ -382,3 +382,67 @@ class UserRoutesTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn("</form>", html)
             self.assertIn("Invalid username/password combination. Please try again.", html)
+
+    def test_user_delete_get(self):
+        """Does this route display the delete form for the current user?"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess["username"] = self.user.username
+            resp = c.get(f'users/{self.user.username}/delete')
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Delete Your Profile", html)
+            self.assertIn("In order to delete your account, please confirm your username and password.", html)
+    
+    def test_user_delete_post(self):
+        """Does this route delete the current user?"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess["username"] = self.user2.username
+            resp = c.post(f'users/{self.user2.username}/delete', data={"username":"testuser2", "password":"PASSWORD"}, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            user = User.query.get("testuser2")
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(user, None)
+            self.assertIn("Anonymous Search", html)
+            self.assertIn("Your account has been deleted.", html)
+            self.assertIn("Register", html)
+
+    def test_user_delete_get_not_logged_in(self):
+        """Does this route redirect the user to the homepage if they are not logged in?"""
+        with self.client as c:
+            resp = c.get('users/testuser2/delete', follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("You are not authorized to access that page.", html)
+            self.assertIn("Login", html)
+
+    def test_user_delete_get_different_user(self):
+        """Does this route redirect the user to the search page if they are not the user to delete?"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess["username"] = self.user.username
+            resp = c.get('users/testuser2/delete', follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("You are not authorized to access that page.", html)
+            self.assertIn("Search by borough:", html)
+
+    def test_user_delete_post_wrong_password(self):
+        """Does this route show form errors if the username/password is not correct?"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess["username"] = self.user2.username
+            resp = c.post(f'users/{self.user2.username}/delete', data={"username":"testuser2", "password":"PASSWORD123"}, follow_redirects=True)
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Invalid username/password combination. Please try again", html)
+            self.assertIn("</form>", html)
+
+    

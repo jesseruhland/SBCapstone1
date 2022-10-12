@@ -1,5 +1,7 @@
 """Additional helper functions for app."""
 
+from models import Site
+
 def create_filters(ra):
     """Format filters for query based on request args.  Return formatted filters in a list."""
 

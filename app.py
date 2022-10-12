@@ -234,11 +234,11 @@ def delete_user(username):
 
             session.pop("username")
 
-            flash(f"Your account has been deleted.", "success")
+            flash("Your account has been deleted.", "success")
             return redirect("/")
         
         else:
-            form.password.errors=["Invalid username/password combination. Please try again"]
+            form.password.errors=["Invalid username/password combination. Please try again."]
     
     if g.user == user:
         return render_template("user-delete.html", form=form, user=user)
