@@ -38,9 +38,10 @@ def add_user_to_global():
 def display_homepage():
     """Display the homepage of the application."""
 
-    sites = Site.query.all()
+    if g.user:
+        return redirect("/sites/search")
 
-    return render_template("homepage.html", sites=sites)
+    return render_template("homepage.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -85,6 +86,9 @@ def create_new_user():
     """On GET -> Display form for new user registration.
     On POST -> Process new user registration, login new user."""
 
+    if g.user:
+        return redirect(f"/users/{g.user.username}")
+    
     form = RegisterForm()
 
     if form.validate_on_submit():
@@ -111,7 +115,7 @@ def create_new_user():
         
         session["username"] = new_user.username
 
-        return redirect("/")
+        return redirect(f"/users/{new_user.username}")
     
     return render_template("register.html", form=form)
 
@@ -154,11 +158,16 @@ def display_user_edit_form(username):
             this_user.email = form.email.data
             this_user.zip_code = form.zip_code.data
 
-            db.session.commit()
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                form.username.errors.append('That username or email is already in use. Please choose another.')
+                return render_template("user-update.html", form=form, user=user)
 
             session["username"] = this_user.username
 
-            flash(f"Your profile has been updated.", "success")
+            flash("Your profile has been updated.", "success")
             return redirect(f"/users/{this_user.username}")
 
         else:
@@ -193,11 +202,11 @@ def change_user_password(username):
         if this_user:
             db.session.commit()
 
-            flash(f"Your password has been changed.", "success")
+            flash("Your password has been changed.", "success")
             return redirect(f"/users/{username}")
         
         else:
-            form.password.errors=["Invalid username/password combination. Please try again"]
+            form.password.errors=["Invalid username/password combination. Please try again."]
     
     if g.user == user:
         return render_template("user-password.html", form=form, user=user)

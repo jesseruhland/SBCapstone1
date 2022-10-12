@@ -15,7 +15,7 @@
 {% for site in user.fav_sites %}
 <p>
   <a href="/sites/{{site.id}}">{{site.name}}</a>
-  {{site.address}}
+  {{site.borough}}
   <!-- <form action="/sites/{{site.id}}/favorite/delete" method="POST"> -->
   <button class="user-page-unfav-btn" data-site-id="{{site.id}}">
     Un-Favorite

@@ -84,8 +84,8 @@ class Comment(db.Model):
         return f"<Comment id:{c.id}, username:{c.username}, private?:{c.private}>"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"), nullable=False)
-    site_id = db.Column(db.Integer, db.ForeignKey("sites.id", ondelete="CASCADE"), nullable=False)
+    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    site_id = db.Column(db.Integer, db.ForeignKey("sites.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     content = db.Column(db.Text, nullable=False)
     private = db.Column(db.Boolean, nullable=False)
 
@@ -99,8 +99,8 @@ class Favorite(db.Model):
         f = self
         return f"<Favorite Relationship username:{f.username}, facility:{f.site_id}>"
 
-    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE"), primary_key=True)
-    site_id = db.Column(db.Integer, db.ForeignKey("sites.id", ondelete="CASCADE"), primary_key=True)
+    username = db.Column(db.String(30), db.ForeignKey("users.username", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
+    site_id = db.Column(db.Integer, db.ForeignKey("sites.id", ondelete="CASCADE", onupdate="CASCADE"), primary_key=True)
 
 class Site(db.Model):
     """Site"""
