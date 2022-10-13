@@ -3,32 +3,49 @@
 {% block title %}Update Your Profile{% endblock %}
 <!--  -->
 {% block main_content %}
-<div>
-  <form method="POST">
-    {{form.hidden_tag()}}
-    <!--  -->
-    {% for field in form if field.widget.input_type !='hidden' %}
-    <div>
-      {{field.label}} {{field}}
+<div class="container mt-5">
+  <div>
+    <form method="POST">
+      {{form.hidden_tag()}}
       <!--  -->
-      {% for error in field.errors %}
-      <div>{{error}}</div>
+      {% for field in form if field.widget.input_type !='hidden' %}
+      <div>
+        {{field.label(class_="form-label")}} {{field(class_="form-control")}}
+        <!--  -->
+        {% for error in field.errors %}
+        <div><small class="text-danger">{{error}}</small></div>
+        {% endfor %}
+      </div>
       {% endfor %}
+      <!--  -->
+      <hr />
+      <small>In order to save your changes, please confirm your password.</small
+      ><br />
+      <label for="update-password-input" class="form-label">Password:</label>
+      <input
+        id="update-password-input"
+        class="form-control"
+        name="password"
+        type="password"
+      />
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <button class="btn btn-primary my-2" type="submit">Submit</button>
+      </div>
+    </form>
+    <div class="container text-center">
+      <a href="/users/{{user.username}}"
+        ><button class="btn btn-secondary">Cancel</button></a
+      >
     </div>
-    {% endfor %}
-    <!--  -->
-    <small>In order to save your changes, please confirm your password.</small>
-    <label for="update-password-input">Password:</label>
-    <input id="update-password-input" name="password" type="password" />
-    <button>Submit</button>
-  </form>
-  <a href="/users/{{user.username}}"><button>Cancel</button></a>
-  <hr />
-  <a href="/users/{{user.username}}/delete"
-    ><button>Delete Your Account</button></a
-  >
-  <a href="/users/{{user.username}}/update/password"
-    ><button>Change Your Password</button></a
-  >
+    <hr />
+    <a href="/users/{{user.username}}/delete"
+      ><button class="btn btn-outline-danger">Delete Your Account</button></a
+    >
+    <a href="/users/{{user.username}}/update/password"
+      ><button class="btn btn-outline-secondary">
+        Change Your Password
+      </button></a
+    >
+  </div>
 </div>
 {% endblock %}

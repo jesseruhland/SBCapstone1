@@ -101,7 +101,7 @@ class UserRoutesTestCase(TestCase):
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn("<button>Register</button>", html)
+            self.assertIn("Register</button>", html)
 
     def test_homepage(self):
         """Does this route display the search page if user logged in?"""
@@ -166,7 +166,7 @@ class UserRoutesTestCase(TestCase):
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn("<button>Register</button>", html)
+            self.assertIn("Register</button>", html)
             self.assertIn("Anonymous Search", html)
         
     def test_user_register_get(self):
@@ -393,7 +393,7 @@ class UserRoutesTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertIn("Delete Your Profile", html)
-            self.assertIn("In order to delete your account, please confirm your username and password.", html)
+            self.assertIn("CAUTION: This action cannot be undone.", html)
     
     def test_user_delete_post(self):
         """Does this route delete the current user?"""

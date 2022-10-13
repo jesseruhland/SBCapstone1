@@ -3,23 +3,37 @@
 {% block title %}Add A Comment{% endblock %}
 <!--  -->
 {% block main_content %}
-<div>
-  <h1>New Comment for {{site.name}}</h1>
-  <form method="POST">
-    {{form.hidden_tag()}}
-    <!--  -->
-    {% for field in form if field.widget.input_type !='hidden' %}
-    <div>
-      {{field.label}} {{field}}
+<div
+  class="container text-center position-fixed top-50 start-50 translate-middle"
+>
+  <div>
+    <h1>New Comment for {{site.name}}</h1>
+    <form method="POST">
+      {{form.hidden_tag()}}
       <!--  -->
-      {% for error in field.errors %}
-      <div>{{error}}</div>
-      {% endfor %}
-    </div>
-    {% endfor %}
-    <!--  -->
-    <button>Submit</button>
-  </form>
-  <a href="/"><button>Cancel</button></a>
+      {% for field in form if field.widget.input_type !='hidden' %}{% if
+      field.type != 'BooleanField' %}
+      <div>
+        {{field.label(class_="form-label")}} {{field(class_="form-control")}}
+        <!--  -->
+        {% for error in field.errors %}
+        <div>{{error}}</div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div>
+        {{field.label(class_="form-check-label")}}
+        {{field(class_="form-check-input")}}
+        <!--  -->
+        {% for error in field.errors %}
+        <div><small class="text-danger">{{error}}</small></div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endfor %}
+      <!--  -->
+      <button class="btn btn-primary m-3">Submit</button>
+    </form>
+    <a href="/"><button class="btn btn-secondary">Cancel</button></a>
+  </div>
 </div>
 {% endblock %}

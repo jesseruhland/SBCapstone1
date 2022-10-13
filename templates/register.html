@@ -3,28 +3,37 @@
 {% block title %}New User Registration{% endblock %}
 <!--  -->
 {% block main_content %}
-<div>
-  <form method="POST">
-    {{form.hidden_tag()}}
-    <!--  -->
-    {% for field in form if field.widget.input_type !='hidden' %}
-    <div>
-      {{field.label}} {{field}}
+<div class="container mt-5">
+  <div>
+    <form method="POST">
+      {{form.hidden_tag()}}
       <!--  -->
-      {% for error in field.errors %}
-      <div>{{error}}</div>
+      {% for field in form if field.widget.input_type !='hidden' %}
+      <div>
+        {{field.label(class_="form-label")}} {{field(class_="form-control")}}
+        <!--  -->
+        {% for error in field.errors %}
+        <div><small class="text-danger">{{error}}</small></div>
+        {% endfor %}
+      </div>
       {% endfor %}
+      <hr />
+      <label for="confirm-password-input" class="form-label"
+        >CONFIRM PASSWORD:</label
+      >
+      <input
+        type="password"
+        name="confirm-password-input"
+        id="confirm-password-input"
+        class="form-control"
+      />
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <button type="submit" class="btn btn-primary my-2">Submit</button>
+      </div>
+    </form>
+    <div class="container text-center">
+      <a href="/"><button class="btn btn-secondary">Cancel</button></a>
     </div>
-    {% endfor %}
-    <!--  -->
-    <label for="confirm-password-input">CONFIRM PASSWORD:</label>
-    <input
-      type="password"
-      name="confirm-password-input"
-      id="confirm-password-input"
-    />
-    <button>Submit</button>
-  </form>
-  <a href="/"><button>Cancel</button></a>
+  </div>
 </div>
 {% endblock %}

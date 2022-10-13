@@ -18,7 +18,11 @@ const $siteFavBtn = $("#site-page-fav-btn");
 // Add the visual elements to the page
 const addToPage = (siteObj, location) => {
   const newLi = document.createElement("div");
-  newLi.classList.add("col-4");
+  newLi.classList.add("col-12");
+  if (location != $similarLocationsList) {
+    newLi.classList.add("col-sm-6");
+    newLi.classList.add("col-md-4");
+  }
   newLi.innerHTML = `<div class="card mt-1"><div class="card-body"><h5 class="card-title">${
     siteObj.name
   }</h5><h6 class="card-subtitle mb-2 text-muted">${siteObj.borough}</h6><p>${
@@ -228,17 +232,17 @@ $similarLocationsBtn.on("click", async function (event) {
     addToPage(results[result], $similarLocationsList);
   }
 
-  $similarLocationsBtn.hide();
-  $hideSimilarBtn.show();
+  $similarLocationsBtn.addClass("d-none");
+  $hideSimilarBtn.removeClass("d-none");
 
-  $similarLocationsList.show();
+  $similarLocationsList.removeClass("d-none");
 });
 
 //  Hide Similar Results
 $hideSimilarBtn.on("click", function () {
-  $hideSimilarBtn.hide();
-  $similarLocationsBtn.show();
-  $similarLocationsList.hide();
+  $hideSimilarBtn.addClass("d-none");
+  $similarLocationsBtn.removeClass("d-none");
+  $similarLocationsList.addClass("d-none");
 });
 
 //  Send delete comment request without refreshing the page, update front end to sync with back end
@@ -250,7 +254,7 @@ $deleteCommentBtn.on("click", async function (event) {
     type: "POST",
   });
 
-  event.target.parentElement.parentElement.remove();
+  event.target.parentElement.parentElement.parentElement.remove();
 });
 
 //  Send delete favorite request from USER DETAIL PAGE without refreshing the page, update front end to sync with back end
@@ -262,7 +266,7 @@ $userUnFavBtn.on("click", async function (event) {
     type: "POST",
   });
 
-  event.target.parentElement.remove();
+  event.target.parentElement.parentElement.remove();
 });
 
 //  Send delete favorite request from SITE DETAIL PAGE without refreshing the page, update front end to sync with back end
@@ -274,8 +278,8 @@ $siteUnFavBtn.on("click", async function (event) {
     type: "POST",
   });
 
-  $siteUnFavBtn.hide();
-  $siteFavBtn.show();
+  $siteUnFavBtn.addClass("d-none");
+  $siteFavBtn.removeClass("d-none");
 });
 
 //  Send new favorite request from SITE DETAIL PAGE without refreshing the page, update front end to sync with back end
@@ -287,6 +291,6 @@ $siteFavBtn.on("click", async function (event) {
     type: "POST",
   });
 
-  $siteFavBtn.hide();
-  $siteUnFavBtn.show();
+  $siteFavBtn.addClass("d-none");
+  $siteUnFavBtn.removeClass("d-none");
 });

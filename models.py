@@ -31,7 +31,7 @@ class User(db.Model):
     zip_code = db.Column(db.Integer, nullable=False)
     password = db.Column(db.String, nullable=False)
 
-    comments = db.relationship("Comment", backref="user")
+    comments = db.relationship("Comment", cascade="all,delete", backref="user")
     fav_sites = db.relationship("Site", secondary="favorites", backref="fav_users")
 
     @classmethod

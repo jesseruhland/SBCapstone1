@@ -361,7 +361,6 @@ def update_comment(comment_id):
     if g.user:
 
         comment = Comment.query.get_or_404(comment_id)
-        site = Site.query.get_or_404(comment.site_id)
         form = CommentForm(obj=comment)
 
         if comment.username == g.user.username:
@@ -380,7 +379,7 @@ def update_comment(comment_id):
                 return redirect(f"/sites/{comment.site_id}")
 
             else:
-                return render_template("comment-update.html", form=form, site=site)
+                return render_template("comment-update.html", form=form, comment=comment)
 
         else:
             flash("You must be the owner of that comment to edit it.", "warning")

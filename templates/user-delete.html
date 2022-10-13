@@ -3,25 +3,41 @@
 {% block title %}Delete Your Profile{% endblock %}
 <!--  -->
 {% block main_content %}
-<div>
-  <p>
-    In order to delete your account, please confirm your username and password.
-  </p>
-  <form method="POST">
-    {{form.hidden_tag()}}
-    <!--  -->
-    {% for field in form if field.widget.input_type !='hidden' %}
-    <div>
-      {{field.label}} {{field}}
-      <!--  -->
-      {% for error in field.errors %}
-      <div>{{error}}</div>
-      {% endfor %}
+<div
+  class="container text-center position-fixed top-50 start-50 translate-middle"
+>
+  <div>
+    <p>
+      In order to delete your account, please confirm your username and
+      password.<br /><span class="text-danger"
+        >CAUTION: This action cannot be undone.</span
+      >
+    </p>
+    <div class="row">
+      <div class="col"></div>
+      <div class="col">
+        <form action="/users/{{user.username}}/delete" method="POST">
+          {{form.hidden_tag()}}
+          <!--  -->
+          {% for field in form if field.widget.input_type !='hidden' %}
+          <div>
+            {{field.label(class_="form-label")}}
+            {{field(class_="form-control")}}
+            <!--  -->
+            {% for error in field.errors %}
+            <div><small class="text-danger">{{error}}</small></div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+          <!--  -->
+          <button class="btn btn-danger m-3">Delete Account</button>
+        </form>
+        <a href="/users/{{user.username}}"
+          ><button class="btn btn-secondary">Cancel</button></a
+        >
+      </div>
+      <div class="col"></div>
     </div>
-    {% endfor %}
-    <!--  -->
-    <button>Submit</button>
-  </form>
-  <a href="/users/{{user.username}}"><button>Cancel</button></a>
+  </div>
 </div>
 {% endblock %}

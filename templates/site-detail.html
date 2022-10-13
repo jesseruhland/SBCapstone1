@@ -2,139 +2,197 @@
 <!--  -->
 {% block title %}{{site.name}} Details{% endblock %}
 <!--  -->
-{% block main_content %} {{site.name}} {{site.address}} {% if g.user %}
-<a href="/sites/{{site.id}}/comments"><button>New Comment</button></a>
-{% if g.user in site.fav_users %}
-<!-- <form action="/sites/{{site.id}}/favorite/delete" method="POST"> -->
-<button id="site-page-unfav-btn" data-site-id="{{site.id}}">Un-Favorite</button>
-<button id="site-page-fav-btn" data-site-id="{{site.id}}" hidden>
-  Favorite
-</button>
-<!-- </form> -->
-{% else %}
-<!-- <form action="/sites/{{site.id}}/favorite" method="POST"> -->
-<button id="site-page-fav-btn" data-site-id="{{site.id}}">Favorite</button>
-<button id="site-page-unfav-btn" data-site-id="{{site.id}}" hidden>
-  Un-Favorite
-</button>
-<!-- </form> -->
-{% endif %} {% endif %}
+{% block main_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <h1 class="display-3">{{site.name}}</h1>
+      <small>{{site.borough}}</small>
 
-<h1>Details</h1>
+      <div id="map" style="width: 400px; height: 300px"></div>
+      <script>
+            mapboxgl.accessToken = {{mapboxAccessToken | tojson}}
+          var map = new mapboxgl.Map({
+            container: "map",
+            style: "mapbox://styles/mapbox/streets-v11",
+            center: [{{site.longitude}}, {{site.latitude}}],
+            zoom: 13,
+          });
 
-<div id="map" style="width: 400px; height: 300px"></div>
-<script>
-      mapboxgl.accessToken = {{mapboxAccessToken | tojson}}
-    var map = new mapboxgl.Map({
-      container: "map",
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [{{site.longitude}}, {{site.latitude}}],
-      zoom: 13,
-    });
+        const marker = new mapboxgl.Marker()
+        .setLngLat([{{site.longitude}}, {{site.latitude}}])
+        .setPopup(new mapboxgl.Popup().setHTML('<h4>{{site.name}}</h4><p>{{site.address}}</p>'))
+        .addTo(map);
+      </script>
+      {% if g.user %}
+      <a href="/sites/{{site.id}}/comments"
+        ><button class="btn btn-primary my-2">New Comment</button></a
+      >
+      {% if g.user in site.fav_users %}
+      <button
+        id="site-page-unfav-btn"
+        data-site-id="{{site.id}}"
+        class="btn btn-secondary my-2"
+      >
+        <i class="bi bi-trash3"></i> Remove from Favorites
+      </button>
+      <button
+        id="site-page-fav-btn"
+        class="d-none btn btn-primary my-2"
+        data-site-id="{{site.id}}"
+      >
+        <i class="bi bi-heart-fill"></i> Add to Favorites
+      </button>
+      {% else %}
+      <button
+        id="site-page-fav-btn"
+        class="btn btn-primary my-2"
+        data-site-id="{{site.id}}"
+      >
+        <i class="bi bi-heart-fill"></i> Add to Favorites
+      </button>
+      <button
+        id="site-page-unfav-btn"
+        class="d-none btn btn-secondary my-2"
+        data-site-id="{{site.id}}"
+      >
+        <i class="bi bi-trash3"></i> Remove from Favorites
+      </button>
+      {% endif %} {% endif %}
 
-  const marker = new mapboxgl.Marker()
-  .setLngLat([{{site.longitude}}, {{site.latitude}}])
-  .setPopup(new mapboxgl.Popup().setHTML('<h4>{{site.name}}</h4><p>{{site.address}}</p>'))
-  .addTo(map);
-</script>
+      <p>
+        <b>Name:</b> {{site.name}} <br />
+        <b>Location Type:</b> {{site.partner_type}}
+        ({{site.partner_type_detailed}})
+        <br />
+        <b>Address:</b> {{site.address}} <br />
+        <b>Borough:</b> {{site.borough}} <br />
+        <b>Zip Code:</b> {{site.zip_code}} <br />
+        <b>Phone Number:</b> {% if site.phone %}<a href="tel:{{site.phone}}"
+          >{{site.phone}}</a
+        >
+        {% endif %}<br />
+        <b>Website:</b> {% if site.website %}
+        <a href="{{site.website}}" target="_blank" rel="noopener noreferrer"
+          >{{site.name}}</a
+        >
+        {% endif %}<br />
+      </p>
+      <h4>Hours</h4>
+      <ul>
+        <li>Sunday: {{site.sunday}}</li>
+        <li>Monday: {{site.monday}}</li>
+        <li>Tuesday: {{site.tuesday}}</li>
+        <li>Wednesday: {{site.wednesday}}</li>
+        <li>Thursday: {{site.thursday}}</li>
+        <li>Friday: {{site.friday}}</li>
+        <li>Saturday: {{site.saturday}}</li>
+      </ul>
+      <h4>Product Availability</h4>
+      <ul>
+        <li>Male Condoms: {{site.condoms_male}}</li>
+        <li>Female Condoms: {{site.fc2_female_insertive_condoms}}</li>
+        <li>Lubricant: {{site.lubricant}}</li>
+      </ul>
+    </div>
+    <div class="col-12 col-lg-6">
+      {% if g.user %}
+      <div class="container border rounded p-3 m-3">
+        <h2>My Private Comments</h2>
+        {% for comment in site.comments|reverse %} {% if comment.private == True
+        and comment.username == g.user.username%}
+        <div class="container border rounded p-3 my-1 position-relative">
+          <div class="row">
+            <div class="col-8">
+              <h4>{{comment.username}}</h4>
+              <p class="text-break">{{comment.content}}</p>
+              <small class="fw-light">Note: This comment is private.</small>
+              <small
+                ><a href="/comments/{{comment.id}}/update">Update</a></small
+              >
+            </div>
+            <div class="col-4">
+              <button
+                class="delete-comment-button btn btn-secondary position-absolute top-50 end-0 translate-middle"
+                data-comment-id="{{comment.id}}"
+              >
+                <i class="bi bi-trash3"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+      <div class="container border rounded p-3 m-3">
+        <h2>Public Comments</h2>
+        {% for comment in site.comments|reverse %} {% if comment.private ==
+        False %}
+        <div class="container border rounded p-3 my-1 position-relative">
+          <div class="row">
+            <div class="col-8">
+              <h4>{{comment.username}}</h4>
+              <p class="text-break">{{comment.content}}</p>
+              {% if comment.username == g.user.username %}
+              <small><a href="/comments/{{comment.id}}/update">Update</a></small
+              >{% endif %}
+            </div>
+            {% if comment.username == g.user.username %}
+            <div class="col-4">
+              <button
+                class="delete-comment-button btn btn-secondary position-absolute top-50 end-0 translate-middle"
+                data-comment-id="{{comment.id}}"
+              >
+                <i class="bi bi-trash3"></i> Delete
+              </button>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+      {% endif %}
 
-<p>
-  Name: {{site.name}} <br />
-  Location Type: {{site.partner_type}} ({{site.partner_type_detailed}}) <br />
-  Address: {{site.address}} <br />
-  Borough: {{site.borough}} <br />
-  Zip Code: {{site.zip_code}} <br />
-  Phone Number: {% if site.phone %}<a href="tel:{{site.phone}}"
-    >{{site.phone}}</a
-  >
-  {% endif %}<br />
-  Website: {% if site.website %}
-  <a href="{{site.website}}" target="_blank" rel="noopener noreferrer"
-    >{{site.name}}</a
-  >
-  {% endif %}<br />
-</p>
-<h4>Hours</h4>
-<ul>
-  <li>Sunday: {{site.sunday}}</li>
-  <li>Monday: {{site.monday}}</li>
-  <li>Tuesday: {{site.tuesday}}</li>
-  <li>Wednesday: {{site.wednesday}}</li>
-  <li>Thursday: {{site.thursday}}</li>
-  <li>Friday: {{site.friday}}</li>
-  <li>Saturday: {{site.saturday}}</li>
-</ul>
-<h4>Product Availability</h4>
-<ul>
-  <li>Male Condoms: {{site.condoms_male}}</li>
-  <li>Female Condoms: {{site.fc2_female_insertive_condoms}}</li>
-  <li>Lubricant: {{site.lubricant}}</li>
-</ul>
-
-{% if g.user %}
-<h1>Public Comments</h1>
-{% for comment in site.comments|reverse %} {% if comment.private == False %}
-<div>
-  <h4>{{comment.username}}</h4>
-  {{comment.content}} {% if comment.username == g.user.username %}
-  <small
-    ><a href="/comments/{{comment.id}}/update">Update</a>
-    <!-- <form action="/comments/{{comment.id}}/delete" method="POST"> -->
-    <button class="delete-comment-button" data-comment-id="{{comment.id}}">
-      Delete
-    </button>
-    <!-- </form> --> </small
-  >{% endif %}
+      <div id="similar-locations-div" class="container border rounded p-3 m-3">
+        <h2>Similar Locations</h2>
+        <small>
+          Similar locations are recommended based on location and product
+          availability.
+        </small>
+        <button id="hide-similar-button" class="d-none btn btn-secondary">
+          Hide Similar Locations
+        </button>
+        <form id="similar-location-form">
+          <input
+            name="similar-zip-code-input"
+            id="similar-zip-code-input"
+            value="{{site.zip_code}}"
+            hidden
+          />
+          <input
+            name="similar-mc-input"
+            id="similar-mc-input"
+            value="{{site.condoms_male}}"
+            hidden
+          />
+          <input
+            name="similar-fc-input"
+            id="similar-fc-input"
+            value="{{site.fc2_female_insertive_condoms}}"
+            hidden
+          />
+          <input
+            name="similar-lubricant-input"
+            id="similar-lubricant-input"
+            value="{{site.lubricant}}"
+            hidden
+          />
+          <button id="similar-locations-button" class="btn btn-secondary">
+            See Similar Locations
+          </button>
+        </form>
+        <div id="similar-locations-list" class="d-none"></div>
+      </div>
+    </div>
+  </div>
+  {%endblock %}
 </div>
-{% endif %} {% endfor %}
-<h1>My Private Comments</h1>
-{% for comment in site.comments|reverse %} {% if comment.private == True and
-comment.username == g.user.username%}
-<div>
-  <h4>{{comment.username}}</h4>
-  {{comment.content}}<br />
-  <small>Note: This comment is private.</small>
-  <small
-    ><a href="/comments/{{comment.id}}/update">Update</a>
-    <!-- <form action="/comments/{{comment.id}}/delete" method="POST"> -->
-    <button class="delete-comment-button" data-comment-id="{{comment.id}}">
-      Delete
-    </button>
-    <!-- </form> -->
-  </small>
-</div>
-{% endif %} {% endfor %} {% endif %}
-
-<div id="similar-locations-div">
-  <h1>Similar Locations</h1>
-  <button id="hide-similar-button" hidden>Hide Similar Locations</button>
-  <form id="similar-location-form">
-    <input
-      name="similar-zip-code-input"
-      id="similar-zip-code-input"
-      value="{{site.zip_code}}"
-      hidden
-    />
-    <input
-      name="similar-mc-input"
-      id="similar-mc-input"
-      value="{{site.condoms_male}}"
-      hidden
-    />
-    <input
-      name="similar-fc-input"
-      id="similar-fc-input"
-      value="{{site.fc2_female_insertive_condoms}}"
-      hidden
-    />
-    <input
-      name="similar-lubricant-input"
-      id="similar-lubricant-input"
-      value="{{site.lubricant}}"
-      hidden
-    />
-    <button id="similar-locations-button">See Similar Locations</button>
-  </form>
-  <ul id="similar-locations-list" hidden></ul>
-</div>
-{%endblock %}

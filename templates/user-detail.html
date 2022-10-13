@@ -3,59 +3,108 @@
 {% block title %}{{user.username}} | Profile{% endblock %}
 <!--  -->
 {% block main_content %}
-<div>
-  <p>{{user.username}}</p>
-  <p>{{user.first_name}} {{user.last_name}}</p>
-  <p>{{user.email}}</p>
-  <p>{{user.zip_code}}</p>
-  <a href="/users/{{user.username}}/update">Update/Delete Your Profile</a>
+<div class="container">
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="container border rounded p-3 my-3">
+        <h1 class="display-3">Account Details</h1>
+        <p><b>Username:</b> {{user.username}}</p>
+        <p><b>Full Name:</b> {{user.first_name}} {{user.last_name}}</p>
+        <p><b>Email Address:</b> {{user.email}}</p>
+        <p><b>Zip Code:</b> {{user.zip_code}}</p>
+        <a href="/users/{{user.username}}/update">Update/Delete Your Profile</a>
+      </div>
+
+      <div class="container border rounded p-3 my-3">
+        <h2>My Favorite Sites</h2>
+        {% for site in user.fav_sites %}
+        <div class="card mt-1">
+          <div class="card-body">
+            <h5 class="card-title">{{site.name}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{site.borough}}</h6>
+            <p class="card-text">
+              {{site.address}}<br />
+              {% if site.phone %}<a href="tel:{{site.phone}}">{{site.phone}}</a
+              >{% endif %}<br />
+              {% if site.website %}
+              <a
+                href="{{site.website}}"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{{site.name}}</a
+              >{% endif %}
+            </p>
+            <a href="/sites/{{site.id}}" class="btn btn-primary"
+              >View Details</a
+            >
+            <button
+              class="user-page-unfav-btn btn btn-secondary my-2"
+              data-site-id="{{site.id}}"
+            >
+              <i class="bi bi-trash3"></i> Remove from Favorites
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="container border rounded p-3 my-3">
+        <h2>My Private Comments</h2>
+        {% for comment in user.comments|reverse %} {% if comment.private == True
+        %}
+        <div class="container border rounded p-3 my-1 position-relative">
+          <div class="row">
+            <div class="col-8">
+              <a href="/sites/{{comment.site.id}}"
+                ><h4>{{comment.site.name}}</h4></a
+              >
+              <p class="text-break">{{comment.content}}</p>
+              <small class="fw-light">Note: This comment is private.</small>
+              <small
+                ><a href="/comments/{{comment.id}}/update">Update</a></small
+              >
+            </div>
+            <div class="col-4">
+              <button
+                class="delete-comment-button btn btn-secondary position-absolute top-50 end-0 translate-middle"
+                data-comment-id="{{comment.id}}"
+              >
+                <i class="bi bi-trash3"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+      <div class="container border rounded p-3 my-3">
+        <h2>My Public Comments</h2>
+        {% for comment in user.comments|reverse %} {% if comment.private ==
+        False %}
+        <div class="container border rounded p-3 my-1 position-relative">
+          <div class="row">
+            <div class="col-8">
+              <a href="/sites/{{comment.site.id}}"
+                ><h4>{{comment.site.name}}</h4></a
+              >
+              <p class="text-break">{{comment.content}}</p>
+              <small
+                ><a href="/comments/{{comment.id}}/update">Update</a></small
+              >
+            </div>
+            <div class="col-4">
+              <button
+                class="delete-comment-button btn btn-secondary position-absolute top-50 end-0 translate-middle"
+                data-comment-id="{{comment.id}}"
+              >
+                <i class="bi bi-trash3"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
-
-<h1>My Favorite Sites</h1>
-{% for site in user.fav_sites %}
-<p>
-  <a href="/sites/{{site.id}}">{{site.name}}</a>
-  {{site.borough}}
-  <!-- <form action="/sites/{{site.id}}/favorite/delete" method="POST"> -->
-  <button class="user-page-unfav-btn" data-site-id="{{site.id}}">
-    Un-Favorite
-  </button>
-  <!-- </form> -->
-</p>
-{% endfor %}
-
-<h1>My Private Comments</h1>
-{% for comment in user.comments|reverse %} {% if comment.private == True %}
-<p>
-  <a href="/sites/{{comment.site_id}}">{{comment.site.name}}</a>
-  <br />
-  {{comment.content}}
-  <br />
-  <small>Note: This comment is private.</small>
-  <small
-    ><a href="/comments/{{comment.id}}/update">Update</a>
-    <!-- <form action="/comments/{{comment.id}}/delete" method="POST"> -->
-    <button class="delete-comment-button" data-comment-id="{{comment.id}}">
-      Delete
-    </button>
-    <!-- </form> -->
-  </small>
-</p>
-{% endif %} {% endfor %}
-
-<h1>My Public Comments</h1>
-{% for comment in user.comments|reverse %} {% if comment.private == False %}
-<p>
-  <a href="/sites/{{comment.site_id}}">{{comment.site.name}}</a>
-  <br />
-  {{comment.content}}
-  <small
-    ><a href="/comments/{{comment.id}}/update">Update</a>
-    <!-- <form action="/comments/{{comment.id}}/delete" method="POST"> -->
-    <button class="delete-comment-button" data-comment-id="{{comment.id}}">
-      Delete
-    </button>
-    <!-- </form> -->
-  </small>
-</p>
-{% endif %} {% endfor %} {% endblock %}
+{% endblock %}
