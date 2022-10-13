@@ -1,0 +1,9 @@
+#homepage-background {
+  background: linear-gradient(rgba(255, 255, 255, 0) 5%, rgba(0, 0, 0, 1)),
+    url("images/sunset-3875817_1920.jpg") no-repeat center top fixed;
+  height: 1000px;
+}
+
+#logo-image-homepage {
+  width: 100px;
+}

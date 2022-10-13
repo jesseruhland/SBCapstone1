@@ -17,8 +17,15 @@ const $siteFavBtn = $("#site-page-fav-btn");
 
 // Add the visual elements to the page
 const addToPage = (siteObj, location) => {
-  const newLi = document.createElement("li");
-  newLi.innerHTML = `<a href="/sites/${siteObj.id}">${siteObj.name}</a> ${siteObj.borough}`;
+  const newLi = document.createElement("div");
+  newLi.classList.add("col-4");
+  newLi.innerHTML = `<div class="card mt-1"><div class="card-body"><h5 class="card-title">${
+    siteObj.name
+  }</h5><h6 class="card-subtitle mb-2 text-muted">${siteObj.borough}</h6><p>${
+    siteObj.address
+  }<br />${siteObj.phone || ""}</p><a href="/sites/${
+    siteObj.id
+  }">More Information</a></div>`;
 
   location.append(newLi);
 };
@@ -26,15 +33,15 @@ const addToPage = (siteObj, location) => {
 //  Advanced search initiator
 $advancedSearchBtn.on("click", function () {
   $searchResultsList.html("");
-  $boroughSearchForm.hide();
-  $advancedSearchForm.show();
+  $boroughSearchForm.addClass("d-none");
+  $advancedSearchForm.removeClass("d-none");
 });
 
 //  Basic search initiator
 $basicSearchBtn.on("click", function () {
   $searchResultsList.html("");
-  $advancedSearchForm.hide();
-  $boroughSearchForm.show();
+  $advancedSearchForm.addClass("d-none");
+  $boroughSearchForm.removeClass("d-none");
 });
 
 //  Basic search (by borough) handler
