@@ -4,39 +4,57 @@
 <!--  -->
 {% block main_content %} {% if not g.user %}
 <div id="homepage-background">
-  <div
-    class="container text-center position-fixed top-50 start-50 translate-middle text-light"
-  >
-    <div class="row justify-content-center">
-      <img id="logo-image-homepage" src="static/images/SSNYC_Full_Logo.png" />
-      <h1 class="display-3">Welcome to SaferSexNYC!</h1>
-      <p>
-        Our goal is to connect you with
-        <b>FREE</b> safer-sex products (male condoms, female condoms, and
-        lubricant) throughout the five boroughs. Feel free to search for
-        distribution sites below without creating a user account, or register
-        and login to access user features. As a user, you'll be able to save
-        distribution sites to your account for future reference and save public
-        and private comments. Happy browsing; stay safe!
-      </p>
-    </div>
-    <div class="m-4">
+  <div class="position-relative">
+    <div
+      class="container text-center position-absolute top-0 start-50 translate-middle-x text-light"
+    >
+      <div class="row justify-content-center">
+        <img id="logo-image-homepage" src="static/images/SSNYC_Full_Logo.png" />
+        <h1 class="display-3">Welcome to SaferSexNYC!</h1>
+        <p>
+          Our goal is to connect you with
+          <b>FREE</b> safer-sex products (male condoms, female condoms, and
+          lubricant) throughout the five boroughs. Feel free to search for
+          distribution sites below without creating a user account, or register
+          and login to access user features. As a user, you'll be able to save
+          distribution sites to your account for future reference and save
+          public and private comments. Happy browsing; stay safe!
+        </p>
+      </div>
+      <div class="m-4">
+        <div class="row">
+          <a href="/sites/search"
+            ><button class="btn btn-primary">Anonymous Search</button></a
+          >
+        </div>
+      </div>
       <div class="row">
-        <a href="/sites/search"
-          ><button class="btn btn-primary">Anonymous Search</button></a
+        <div class="mb-3">
+          <h5>Returning user?</h5>
+          <a href="/login"><button class="btn btn-primary">Login</button></a>
+        </div>
+        <h5>New user? Sign up for an account here:</h5>
+        <a href="/users/register"
+          ><button class="btn btn-primary">Register</button></a
         >
       </div>
     </div>
-    <div class="row">
-      <div class="mb-3">
-        <h5>Returning user?</h5>
-        <a href="/login"><button class="btn btn-primary">Login</button></a>
-      </div>
-      <h5>New user? Sign up for an account here:</h5>
-      <a href="/users/register"
-        ><button class="btn btn-primary">Register</button></a
+  </div>
+</div>
+<div class="position-relative">
+  <div
+    class="position-absolute bottom-0 start-50 translate-middle-x text-center"
+  >
+    <small class="text-light"
+      >Distribution site data for this project was provided in part by
+      <a
+        href="https://opendata.cityofnewyork.us/"
+        target="_blank"
+        rel="noopener noreferrer"
+        >NYC OpenData</a
       >
-    </div>
+      in connection with the NYC Department of Health and Mental Hygiene.</small
+    >
   </div>
 </div>
 {% endif %} {% endblock %}
