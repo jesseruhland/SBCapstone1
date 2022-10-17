@@ -1,4 +1,3 @@
-import pandas as pd
 from sodapy import Socrata
 from models import Site, db
 from app import app
