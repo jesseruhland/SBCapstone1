@@ -86,3 +86,11 @@ _Mapbox_ at https://www.mapbox.com/
   - Python SQL toolkit and object relational mapper
 - WTForms
   - Form validation and rendering
+
+### Notes:
+
+The included facility_seed.py file creates the tables for the database and pulls all distribution site information from the API to initialize the database. A .env file must be included in the root directory with the following variables defined:
+
+- API_APP_TOKEN
+- MAPBOX_ACCESS_TOKEN
+- DATABASE_URL
