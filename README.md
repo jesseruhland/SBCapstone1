@@ -4,7 +4,7 @@ This application can be viewed at https://safer-sex-nyc.onrender.com
 
 ### Purpose:
 
-The goal of this application is to connect users with free safer-sex products (male condoms, female condoms, and lubricant) distribution sites throughout the five boroughs. An anonymous user can search for distribution sites without creating a user account, or can register and login to access user features. After registration, a user is able to save distribution sites to the user account for future reference and save public and private comments.
+The goal of this application is to connect users with free safer-sex product (male condoms, female condoms, and lubricant) distribution sites throughout the five boroughs. An anonymous user can search for distribution sites without creating a user account, or can register and login to access user features. After registration, a user is able to save distribution sites to the user account for future reference and save public and private comments.
 
 ### Features:
 
